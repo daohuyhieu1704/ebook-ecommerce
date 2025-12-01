@@ -18,14 +18,32 @@ class UserController {
   };
   newUser = async (req, res, next) => {
     try {
-      const { email, captcha } = JSON.parse(req.body);
-      const data = await new UserService().NewUser({ email, captcha });
+      const { email, password, firstName, lastName } = JSON.parse(req.body);
+
+      const data = await new UserService().NewUser({
+        email,
+        password,
+        firstName,
+        lastName,
+      });
+
       if (data.error) {
-        return res.status(400).json(HttpResponse.error(data.error));
+        return res.status(400).json({
+          status: "error",
+          message: data.error,
+        });
       }
-      return res.json(HttpResponse.success(data));
+
+      return res.status(201).json({
+        status: "success",
+        data: data,
+      });
     } catch (error) {
-      return res.status(400).json(HttpResponse.error(data.error));
+      console.error(error);
+      return res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
     }
   };
 

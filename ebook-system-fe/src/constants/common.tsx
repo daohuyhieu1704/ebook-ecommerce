@@ -154,6 +154,7 @@ export const LOCAL_STORAGE_ITEM = Object.freeze({
   USER_INFO: "userInfo",
   ACCESS_TOKEN: "access_token",
   REFRESH_TOKEN: "refreshToken",
+  PERMISSIONS: "PERMISSIONS",
   ROLE: "role",
 });
 
