@@ -11,50 +11,22 @@ Permission.init(
       primaryKey: true,
       allowNull: false,
     },
-    can_create_account: {
-      type: DataTypes.TINYINT(1),
+    slug: {
+      type: DataTypes.STRING(50),
       allowNull: false,
-      defaultValue: 0,
+      unique: true,
     },
-    can_modify_account: {
-      type: DataTypes.TINYINT(1),
+    name: {
+      type: DataTypes.STRING(100),
       allowNull: false,
-      defaultValue: 0,
     },
-    can_delete_account: {
-      type: DataTypes.TINYINT(1),
+    group_key: {
+      type: DataTypes.STRING(50),
       allowNull: false,
-      defaultValue: 0,
     },
-    can_create_book: {
-      type: DataTypes.TINYINT(1),
-      allowNull: false,
-      defaultValue: 0,
-    },
-    can_modify_book: {
-      type: DataTypes.TINYINT(1),
-      allowNull: false,
-      defaultValue: 0,
-    },
-    can_delete_book: {
-      type: DataTypes.TINYINT(1),
-      allowNull: false,
-      defaultValue: 0,
-    },
-    can_modify_payment: {
-      type: DataTypes.TINYINT(1),
-      allowNull: false,
-      defaultValue: 0,
-    },
-    can_delete_feedback: {
-      type: DataTypes.TINYINT(1),
-      allowNull: false,
-      defaultValue: 0,
-    },
-    can_reply_message: {
-      type: DataTypes.TINYINT(1),
-      allowNull: false,
-      defaultValue: 0,
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
   },
   {

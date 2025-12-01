@@ -1,7 +1,12 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database/init.mysqldb.js";
+import bcrypt from "bcrypt";
 
-class User extends Model {}
+class User extends Model {
+  async matchPassword(enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+  }
+}
 
 User.init(
   {
@@ -65,6 +70,20 @@ User.init(
     tableName: "users",
     timestamps: false,
     underscored: true,
+    hooks: {
+      beforeCreate: async (user) => {
+        if (user.password) {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+      beforeUpdate: async (user) => {
+        if (user.changed("password")) {
+          const salt = await bcrypt.genSalt(10);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+    },
   }
 );
 

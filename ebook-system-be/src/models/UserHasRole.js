@@ -7,8 +7,8 @@ class UserHasRole extends Model {}
 UserHasRole.init(
   {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1, // Or DataTypes.UUIDV4,
+      type: DataTypes.STRING(50),
+      defaultValue: DataTypes.UUIDV4, // Or DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
     },
@@ -33,8 +33,5 @@ UserHasRole.init(
     timestamps: false,
   }
 );
-
-UserHasRole.belongsTo(Role, { foreignKey: "role_ID" });
-Role.hasMany(UserHasRole, { foreignKey: "role_ID" });
 
 export default UserHasRole;

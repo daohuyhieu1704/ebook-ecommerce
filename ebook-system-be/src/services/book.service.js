@@ -5,7 +5,6 @@ import Token from "../models/Token.js";
 import { where } from "sequelize";
 import Category from "../models/Category.js";
 import Author from "../models/Author.js";
-import Inventory from "../models/Inventory.js";
 import ShoppingSession from "../models/ShoppingSession.js";
 import CartItem from "../models/CartItem.js";
 import OrderDetail from "../models/OrderDetail.js";
@@ -55,15 +54,7 @@ class BookService {
   // CRUD administration
   async CreateBook({ book }) {
     try {
-      let {
-        title,
-        description,
-        image,
-        price,
-        author_ID,
-        category_ID,
-        inventory_ID,
-      } = book;
+      let { title, description, image, price, author_ID, category_ID } = book;
       let my_book = await Book.create({
         title,
         description,
@@ -71,7 +62,6 @@ class BookService {
         price,
         author_ID,
         category_ID,
-        inventory_ID,
       });
 
       return { ...my_book.dataValues };
@@ -91,7 +81,7 @@ class BookService {
           {
             required: true,
             model: Category,
-          }
+          },
         ],
       });
       let books = query.map((book) => book.dataValues);
@@ -113,10 +103,6 @@ class BookService {
           {
             required: true,
             model: Category,
-          },
-          {
-            required: true,
-            model: Inventory,
           },
         ],
       });
@@ -213,10 +199,6 @@ class BookService {
   //         {
   //           required: true,
   //           model: Category,
-  //         },
-  //         {
-  //           required: true,
-  //           model: Inventory,
   //         },
   //       ],
   //     });

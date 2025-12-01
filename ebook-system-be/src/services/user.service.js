@@ -1,13 +1,10 @@
 import jsonwebtoken from "jsonwebtoken";
 import crypto from "crypto";
 import User from "../models/User.js";
-import Token from "../models/Token.js";
 import UserHasRole from "../models/UserHasRole.js";
 import Role from "../models/Role.js";
 import { where } from "sequelize";
 import ShoppingSession from "../models/ShoppingSession.js";
-import EmailService from "./email.service.js";
-import OtpService from "./otp.service.js";
 
 class UserService {
   async findUserByEmail({ email }) {
@@ -22,46 +19,41 @@ class UserService {
     }
   }
 
-  async CheckLoginEmailToken({ full_name, password, token }) {
+  async NewUser({ email, password, firstName, lastName }) {
     try {
-      let { otp_email: email, otp_token } =
-        await new OtpService().checkEmailToken({ token });
-
-      const hasUser = await this.findUserByEmail({ email });
-      if (hasUser.user) {
-        return { error: hasUser.error };
-      }
-
-      let newUser = await this.SignUp({
-        full_name,
-        email,
-        password,
-      });
-
-      return newUser;
-    } catch (error) {
-      return { error };
-    }
-  }
-
-  async NewUser({ email, captcha }) {
-    try {
-      let user = await User.findOne({ where: { email } });
-      if (user) {
+      let userExists = await User.findOne({ where: { email } });
+      if (userExists) {
         return { error: "Email này đã tồn tại" };
       }
-      const result = await new EmailService().sendEmailToken({
+
+      const newUser = await User.create({
         email,
+        password,
+        first_name: firstName,
+        last_name: lastName,
+        enable: 1,
       });
 
+      const defaultRole = await Role.findOne({ where: { id: "default_user" } });
+
+      if (defaultRole) {
+        await UserHasRole.create({
+          user_ID: newUser.id,
+          role_ID: defaultRole.id,
+        });
+      }
+
       return {
-        message: "Email hợp lệ",
-        metadata: {
-          token: result,
+        message: "Đăng ký thành công",
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: `${newUser.first_name} ${newUser.last_name}`,
         },
       };
     } catch (error) {
-      return { error };
+      console.error("Error in NewUser service:", error);
+      return { error: error.message };
     }
   }
 

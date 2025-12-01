@@ -1,8 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database/init.mysqldb.js";
-import Author from './Author.js';
-import Category from './Category.js';
-import Inventory from './Inventory.js';
+import Author from "./Author.js";
+import Category from "./Category.js";
 
 class Book extends Model {}
 
@@ -42,14 +41,6 @@ Book.init(
     //       key: 'id'
     //     }
     // },
-    // inventory_ID : {
-    //     type: DataTypes.UUID,
-    //     allowNull: true,
-    //     references: {
-    //       model: Inventory,
-    //       key: 'id'
-    //     }
-    // },    
     price: {
       type: DataTypes.NUMBER,
       allowNull: false,
@@ -74,15 +65,13 @@ Book.init(
     modelName: "Book",
     tableName: "books",
     timestamps: false,
-
   }
 );
 
-Book.belongsTo(Author, { foreignKey: 'author_ID' })
-Book.belongsTo(Category, { foreignKey: 'category_ID' })
-Book.belongsTo(Inventory, { foreignKey: 'inventory_ID' })
+Book.belongsTo(Author, { foreignKey: "author_ID" });
+Book.belongsTo(Category, { foreignKey: "category_ID" });
 
-Author.hasOne(Book, { foreignKey: 'author_ID' })
-Category.hasOne(Book, { foreignKey: 'category_ID' })
-Inventory.hasOne(Book, { foreignKey: 'inventory_ID' })
+Author.hasOne(Book, { foreignKey: "author_ID" });
+Category.hasOne(Book, { foreignKey: "category_ID" });
+
 export default Book;

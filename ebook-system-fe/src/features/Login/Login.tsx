@@ -20,48 +20,57 @@ export const Login = () => {
 
   const onFinish = (values: LoginType) => {
     setLoading(true);
+
     AuthenAPI.LogIn({
       email: values.username,
       password: values.password,
     })
       .then(({ data }) => {
-        if (data?.status !== "success") {
+        if (data?.status !== "success" && data?.status !== 200) {
           setLoading(false);
           NotificationCustom({
             type: "error",
-            message: "Error",
-            description: data?.message,
+            message: "Đăng nhập thất bại",
+            description: data?.message || "Có lỗi xảy ra",
           });
         } else {
-          console.log("Success:", data?.data);
+          console.log("Success Data:", data?.data);
+
+          const apiData = data?.data;
+
           setLoading(false);
           dispatch(
             loginSuccess({
-              username: values.username,
-              fullname: data?.data.name
-                ? data?.data.name
-                : values.username.slice(0, values.username.indexOf("@")),
-              accessToken: data.data?.accessToken,
-              refreshToken: data.data?.refreshToken,
+              user: apiData.user,
+              roles: apiData.system_roles || [],
+              permissions: apiData.permissions || [],
+              accessToken: apiData.accessToken,
+              refreshToken: apiData.refreshToken,
               remember: values.remember,
-              role: `${data.data?.roles[0]}`,
             })
           );
+
           NotificationCustom({
             type: "success",
             message: "Thành công",
-            description: "Đăng nhập thành công",
+            description: `Chào mừng ${
+              apiData.user.name || "bạn"
+            } quay trở lại!`,
           });
-          console.log("from: ", from);
+
           navigate(from, { replace: true });
         }
       })
-      .catch((error) => {
+      .catch((error: any) => {
         setLoading(false);
+        const errorMsg =
+          error?.response?.data?.message ||
+          error?.message ||
+          "Lỗi kết nối server";
         NotificationCustom({
           type: "error",
-          message: "Error",
-          description: error,
+          message: "Lỗi",
+          description: errorMsg,
         });
       });
   };
