@@ -5,19 +5,15 @@ class RoleHasPermission extends Model {}
 
 RoleHasPermission.init(
   {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1, // Or DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false,
-    },
     role_ID: {
       type: DataTypes.STRING(50),
       allowNull: false,
+      primaryKey: true,
     },
     permission_ID: {
       type: DataTypes.STRING(50),
       allowNull: false,
+      primaryKey: true,
     },
   },
   {

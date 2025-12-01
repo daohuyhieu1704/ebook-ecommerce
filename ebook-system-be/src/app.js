@@ -8,6 +8,7 @@ import compression from "compression";
 import dotenv from "dotenv";
 import router from "../src/routes/index.js";
 import "../src/database/init.mysqldb.js";
+import "./models/index.js";
 
 const app = express();
 const { config } = dotenv;

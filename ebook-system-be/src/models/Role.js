@@ -6,13 +6,13 @@ class Role extends Model {}
 Role.init(
   {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1, // Or DataTypes.UUIDV4,
+      type: DataTypes.STRING(50),
+      defaultValue: DataTypes.UUIDV4, // Or DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
     },
     name: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
     description: {
