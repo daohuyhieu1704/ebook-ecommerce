@@ -156,6 +156,7 @@ export const LOCAL_STORAGE_ITEM = Object.freeze({
   REFRESH_TOKEN: "refreshToken",
   PERMISSIONS: "PERMISSIONS",
   ROLE: "role",
+  SYSROLES: "SysRoles",
 });
 
 export const hasHeaderBtn = [

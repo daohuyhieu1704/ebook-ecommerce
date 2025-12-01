@@ -8,14 +8,12 @@ import RoleService from "../services/role.service.js";
 class AuthenService {
   async LogIn({ email, password }) {
     try {
-      // 1. Tìm User & Check Pass (Giữ nguyên)
       let user = await User.findOne({ where: { email } });
       if (!user) throw new Error("User not found");
 
       const isMatch = await user.matchPassword(password);
       if (!isMatch) throw new Error("Wrong email or password");
 
-      // 2. Query Role & Permission
       let userRoles = await UserHasRole.findOne({
         where: { user_ID: user.id },
         include: [
@@ -32,6 +30,8 @@ class AuthenService {
           },
         ],
       });
+
+      const systemRoles = await Role.findAll();
 
       const permissions = [];
       let startUrl = "/";
@@ -75,16 +75,15 @@ class AuthenService {
       let fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
       let currentRoleId = userRoles?.Role?.id || null;
 
-      // 5. Trả về kết quả (Kèm start_url đã tính toán)
       return {
         user: {
           id: user.id,
           name: fullName,
           email: user.email,
           role_id: currentRoleId,
-
           start_url: startUrl,
         },
+        systemRoles: systemRoles,
         permissions: permissions,
         accessToken,
         refreshToken,

@@ -20,7 +20,7 @@ export interface UserInfo {
 export interface LoginResponsePayload {
   user: UserInfo;
   current_role?: RoleType;
-  roles: RoleType[];
+  systemRoles: RoleType[];
   permissions: string[];
   accessToken: string;
   refreshToken: string;
@@ -46,7 +46,6 @@ const initialState: LoginState = {
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_ITEM.USER_INFO) || "{}") ||
     JSON.parse(sessionStorage.getItem(LOCAL_STORAGE_ITEM.USER_INFO) || "{}") ||
     {},
-
   role:
     localStorage.getItem(LOCAL_STORAGE_ITEM.ROLE) ||
     sessionStorage.getItem(LOCAL_STORAGE_ITEM.ROLE) ||
@@ -56,11 +55,16 @@ const initialState: LoginState = {
     sessionStorage.getItem(LOCAL_STORAGE_ITEM.ACCESS_TOKEN) ||
     "",
   permissions:
-    JSON.parse(localStorage.getItem("PERMISSIONS") || "[]") ||
-    JSON.parse(sessionStorage.getItem("PERMISSIONS") || "[]") ||
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_ITEM.PERMISSIONS) || "[]") ||
+    JSON.parse(
+      sessionStorage.getItem(LOCAL_STORAGE_ITEM.PERMISSIONS) || "[]"
+    ) ||
     [],
 
-  systemRoles: [],
+  systemRoles:
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_ITEM.SYSROLES) || "[]") ||
+    JSON.parse(sessionStorage.getItem(LOCAL_STORAGE_ITEM.SYSROLES) || "[]") ||
+    [],
 
   isLoggedOut: false,
 };
@@ -70,15 +74,21 @@ export const loginSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess: (state, action: PayloadAction<LoginResponsePayload>) => {
-      const { user, roles, permissions, accessToken, refreshToken, remember } =
-        action.payload;
+      const {
+        user,
+        systemRoles,
+        permissions,
+        accessToken,
+        refreshToken,
+        remember,
+      } = action.payload;
 
       state.isLoggedIn = true;
       state.userInfo = user;
       state.role = user.role_id || "";
       state.permissions = permissions;
       state.accessToken = accessToken;
-      state.systemRoles = roles;
+      state.systemRoles = systemRoles;
 
       const storage = remember ? localStorage : sessionStorage;
 
@@ -90,6 +100,7 @@ export const loginSlice = createSlice({
         LOCAL_STORAGE_ITEM.PERMISSIONS,
         JSON.stringify(permissions)
       );
+      storage.setItem(LOCAL_STORAGE_ITEM.SYSROLES, JSON.stringify(systemRoles));
     },
 
     logout: (state) => {
@@ -104,13 +115,15 @@ export const loginSlice = createSlice({
       localStorage.removeItem(LOCAL_STORAGE_ITEM.ACCESS_TOKEN);
       localStorage.removeItem(LOCAL_STORAGE_ITEM.REFRESH_TOKEN);
       localStorage.removeItem(LOCAL_STORAGE_ITEM.ROLE);
-      localStorage.removeItem("PERMISSIONS");
+      localStorage.removeItem(LOCAL_STORAGE_ITEM.PERMISSIONS);
+      localStorage.removeItem(LOCAL_STORAGE_ITEM.SYSROLES);
 
       sessionStorage.removeItem(LOCAL_STORAGE_ITEM.USER_INFO);
       sessionStorage.removeItem(LOCAL_STORAGE_ITEM.ACCESS_TOKEN);
       sessionStorage.removeItem(LOCAL_STORAGE_ITEM.REFRESH_TOKEN);
       sessionStorage.removeItem(LOCAL_STORAGE_ITEM.ROLE);
-      sessionStorage.removeItem("PERMISSIONS");
+      sessionStorage.removeItem(LOCAL_STORAGE_ITEM.PERMISSIONS);
+      sessionStorage.removeItem(LOCAL_STORAGE_ITEM.SYSROLES);
     },
 
     setUserInfo_safe: (state, action) => {

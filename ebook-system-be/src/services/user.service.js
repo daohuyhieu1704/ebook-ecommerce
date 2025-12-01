@@ -57,7 +57,7 @@ class UserService {
     }
   }
 
-  async SignUp({ full_name, email, password }) {
+  async SignUp({ firstName, lastName, email, password }) {
     try {
       let check = await User.findOne({
         where: { email },
@@ -65,26 +65,42 @@ class UserService {
       if (check) {
         return { error: "Email này đã tồn tại" };
       }
-      password = crypto.createHash("sha256").update(password).digest("hex");
 
-      let words = full_name.trim().split(/\s+/);
-      // Lấy last name bằng cách lấy phần tử cuối cùng trong mảng
-      let last_name = words.pop();
-      // Lấy first name bằng cách nối lại các phần tử còn lại trong mảng
-      let first_name = words.join(" ");
-
-      let user = await User.create({ first_name, last_name, email, password });
-
-      //Tạo role mặc định là customer
-      let role = await Role.findOne({
-        where: { name: "customer" },
+      let user = await User.create({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+        enable: 1,
       });
-      await UserHasRole.create({ user_ID: user.id, role_ID: role.id });
-      //Tạo Shopping session cho Customer
-      await ShoppingSession.create({ user_ID: user.id, total: 0 });
-      return { user };
+
+      let role = await Role.findOne({
+        where: { id: "customer" },
+      });
+
+      if (role) {
+        await UserHasRole.create({
+          user_ID: user.id,
+          role_ID: role.id,
+        });
+      }
+
+      await ShoppingSession.create({
+        user_ID: user.id,
+        total: 0,
+      });
+
+      return {
+        status: "success",
+        user: {
+          id: user.id,
+          email: user.email,
+          name: `${firstName} ${lastName}`,
+        },
+      };
     } catch (error) {
-      return error;
+      console.error("SignUp Error:", error);
+      return { error: error.message };
     }
   }
 
@@ -103,7 +119,6 @@ class UserService {
     }
   }
 
-  // CRUD administration
   async CreateAccount({ email, password, full_name }) {
     try {
       let check = await User.findOne({
@@ -115,9 +130,7 @@ class UserService {
       password = crypto.createHash("sha256").update(password).digest("hex");
 
       let words = full_name.trim().split(/\s+/);
-      // Lấy last name bằng cách lấy phần tử cuối cùng trong mảng
       let last_name = words.pop();
-      // Lấy first name bằng cách nối lại các phần tử còn lại trong mảng
       let first_name = words.join(" ");
 
       let user = await User.create({ first_name, last_name, email, password });

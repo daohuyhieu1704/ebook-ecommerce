@@ -20,6 +20,7 @@ import {
   selectPermissions,
   selectRole,
   selectUserInfo,
+  selectSystemRoles,
 } from "../Login/LoginSlice";
 import {
   CustomContent,
@@ -55,6 +56,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
   const selectedKey = useAppSelector(selectSelectedKey);
   const userInfo = useAppSelector(selectUserInfo);
   const activePermissions = useAppSelector(selectPermissions);
+  const systemRoles = useAppSelector(selectSystemRoles);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -62,6 +64,15 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
       dispatch(changeSelectedKey(location.pathname));
     }
   }, [location]);
+
+  const currentRoleName = useMemo(() => {
+    console.log(userInfo.role_id, systemRoles);
+    if (!userInfo.role_id || systemRoles.length === 0) {
+      return "Khách hàng";
+    }
+    const foundRole = systemRoles.find((r) => r.id === userInfo.role_id);
+    return foundRole ? foundRole.name : "Admin";
+  }, [userInfo.role_id, systemRoles]);
 
   function getKeyByValue(object: any, value: number | undefined): string {
     const str = Object.keys(object).find((key) => object[key] === value);
@@ -188,7 +199,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
                 }}
               >
                 <LogoText>EBook</LogoText>
-                <LogoPara>Admin</LogoPara>
+                <LogoPara>{currentRoleName}</LogoPara>
               </div>
             </LogoWrapper>
           )}

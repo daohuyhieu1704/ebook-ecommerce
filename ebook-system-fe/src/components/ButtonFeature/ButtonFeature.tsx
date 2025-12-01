@@ -1,6 +1,14 @@
+import {
+  EditOutlined,
+  EllipsisOutlined,
+  // ... các icon khác
+} from "@ant-design/icons";
+import { Button, Col, Modal, Row } from "antd"; // Đảm bảo import đủ
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { useLocation } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
+import { PATH } from "../../constants/common";
 import {
   openDrawerRight,
   selectSelectedRows,
@@ -8,13 +16,10 @@ import {
   setIsUpdateForm,
   setSelectedRows,
 } from "../../features/layout/layoutSlice";
-import { NotificationCustom } from "../NotificationCustom/NotificationCustom";
-import { PATH } from "../../constants/common";
-import { Button, Modal } from "antd";
-import { Col, Row } from "antd";
-import { selectUserInfo } from "../../features/Login/LoginSlice";
-import { EditOutlined, EllipsisOutlined } from "@ant-design/icons";
-import { selectSearchCate } from "../../features/Category/CategorySlice";
+import {
+  selectPermissions,
+  selectUserInfo,
+} from "../../features/Login/LoginSlice";
 
 const { confirm } = Modal;
 
@@ -24,37 +29,17 @@ export default function ButtonFeature({
   changeHandler,
   onlyDetail = false,
 }: any) {
-  const path = useLocation().pathname;
+  const location = useLocation();
+  const path = location.pathname;
   const dispatch = useAppDispatch();
   const selectedRows = useAppSelector(selectSelectedRows);
   const userInfo = useAppSelector(selectUserInfo);
-  const searchCate = useAppSelector(selectSearchCate);
+
+  const permissions = useAppSelector(selectPermissions);
+
   const [loadingQuesItem, setLoadingQuesItem] = useState(false);
   const cannotUpdate: string[] = [PATH.CATEGORY_DETAIL];
   const disableMoreInfo: string[] = [];
-
-  const hideSuccess = () => {
-    dispatch(setSelectedRows([]));
-    dispatch(setIsLoadingSubmit(false));
-    NotificationCustom({
-      type: "success",
-      message: "Success",
-      description: "Ẩn thành công!",
-    });
-  };
-
-  const hideError = (error: any) => {
-    dispatch(setIsLoadingSubmit(false));
-    NotificationCustom({
-      type: "error",
-      message: "Error",
-      description: error.response.data.message,
-    });
-  };
-
-  const deleteItem: any = {};
-
-  const hideItem: any = {};
 
   const drawerOnOpenUpdate = () => {
     dispatch(setIsUpdateForm(true));
@@ -62,82 +47,22 @@ export default function ButtonFeature({
     dispatch(openDrawerRight());
   };
 
-  const deleteHandler = () => {
-    confirm({
-      title: "Xác nhận",
-      content: "Bạn có chắc chắn muốn xóa lớp này?",
-      onOk: () => {
-        return deleteItem[path]();
-      },
-    });
-  };
-  const hideHandler = () => {
-    confirm({
-      title: "Xác nhận",
-      content: "Bạn có chắc chắn muốn ẩn lớp này?",
-      onOk: () => {
-        return hideItem[path]();
-      },
-    });
-  };
+  const moduleName = path.split("/").filter(Boolean).pop();
 
-  const changeStatusQuesHandler = (value: boolean, item: any) => {
-    setLoadingQuesItem(true);
-    if (value) {
-      // notificationAPI.hide(item.matb, `${userInfo.accessToken}`)
-      //   .then((res: any) => {
-      //     setLoadingQuesItem(false);
-      //     dispatch(setIsRefetch(true));
-      //     NotificationCustom({
-      //       type: 'success',
-      //       message: 'Thành công',
-      //       description: `${res.data?.message}`,
-      //     });
-      //   })
-      //   .catch((err) => {
-      //     setLoadingQuesItem(false);
-      //     console.log(err);
-      //   })
-    } else {
-      // notificationAPI.show(item.matb, `${userInfo.accessToken}`)
-      //   .then((res: any) => {
-      //     setLoadingQuesItem(false);
-      //     dispatch(setIsRefetch(true));
-      //     NotificationCustom({
-      //       type: 'success',
-      //       message: 'Thành công',
-      //       description: `${res.data?.message}`,
-      //     });
-      //   })
-      //   .catch((err) => {
-      //     setLoadingQuesItem(false);
-      //     console.log(err);
-      //   })
-      setLoadingQuesItem(false);
-    }
-  };
+  const canEdit = permissions.some((slug: string) => {
+    const isEditAction = slug.includes("edit") || slug.includes("update");
 
-  // const modeHide = selectedRows.map((item: any) => (item.deleted)).filter((v, i, a) => a.indexOf(v) === i);
-  // const isDisabledHide = selectedRows.length > 0 && modeHide.length === 1;
+    const isMatchModule = moduleName ? slug.includes(moduleName) : false;
+
+    return isEditAction && isMatchModule;
+  });
+
   return (
     <Row justify="end" align="middle">
-      {/* {hideItem.hasOwnProperty(path) ?
-        <Col 
-        style={{
-          marginLeft: '10px',
-          display: 'flex',
-        }}>
-            <Switch
-              checkedChildren={<EyeOutlined />}
-              unCheckedChildren={<EyeInvisibleOutlined />}
-              defaultChecked={!!parseInt(value)}
-              loading={loadingQuesItem}
-              onChange={(value) => changeStatusQuesHandler(value, item)}
-            />
-        </Col> : <></>} */}
       {cannotUpdate.includes(path) ||
       onlyDetail ||
-      (searchCate !== "" && path.includes(searchCate)) ? (
+      !canEdit ||
+      (false && path.includes("searchCate")) ? (
         <></>
       ) : (
         <Col>
@@ -153,6 +78,7 @@ export default function ButtonFeature({
           </Button>
         </Col>
       )}
+
       {!disableMoreInfo.includes(path) && (
         <Col>
           <Button

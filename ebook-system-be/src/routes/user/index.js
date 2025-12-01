@@ -7,8 +7,8 @@ const router = express.Router();
 
 // User's functions
 router.post("/verify", new UserController().checkLoginEmailToken);
-router.post("/shop/sign-up", new UserController().postSignUp);
-router.post("/shop/new-user", new UserController().newUser);
+router.post("/sign-up", new UserController().postSignUp);
+router.post("/new-user", new UserController().newUser);
 router.patch(
   "/shop/update-info",
   jwtMiddleware,

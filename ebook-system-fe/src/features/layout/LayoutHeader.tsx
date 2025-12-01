@@ -5,17 +5,24 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { createElement, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { theme } from "../../theme/theme";
-import { selectIsLoggedIn, selectUserInfo } from "../Login/LoginSlice";
+import {
+  selectIsLoggedIn,
+  selectPermissions,
+  selectUserInfo,
+} from "../Login/LoginSlice";
 import {
   CustomHeader,
   CustomMenuItemDropdown,
   DrawerFooterButton,
   HeaderConfirm,
   UserInfo,
+  ActionItem,
+  ActionWrapper,
 } from "./LayoutHeader.style";
 import {
   Avatar,
@@ -37,11 +44,13 @@ import {
   selectIsLoadingSubmit,
   selectIsUpdateForm,
   toggleSidebar,
+  openDrawerRight,
+  setIsUpdateForm,
+  setSelectedRows,
 } from "./layoutSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PATH } from "../../constants/common";
 import SearchFilter from "./components/SearchFilter";
-import CRUDButtonList from "./components/CRUDButtonList";
 import BookDetail from "../Book/BookDetail";
 import EmployeeManagerForm from "../EmployeeManager/EmployeeManagerForm";
 import CategoryForm from "../Category/CategoryForm";
@@ -80,8 +89,16 @@ export const LayoutHeader = () => {
   const isUpdateForm = useAppSelector(selectIsUpdateForm);
   const isLoadingSubmit = useAppSelector(selectIsLoadingSubmit);
   const disableSubmit = useAppSelector(selectDisableSubmit);
+  const activePermissions = useAppSelector(selectPermissions);
   const location: any = useLocation();
   const [formTitle, setFormTitle] = useState<string>(location?.pathname);
+  const moduleName = location?.pathname.split("/").filter(Boolean).pop();
+
+  const canCreate = activePermissions.some((slug: string) => {
+    const hasCreateAction = slug.includes("create");
+    const matchesModule = moduleName ? slug.includes(moduleName) : false;
+    return hasCreateAction && matchesModule;
+  });
 
   const details: DetailType = {
     [PATH.BOOK]: {
@@ -136,6 +153,12 @@ export const LayoutHeader = () => {
     dispatch(closeDrawerBottom());
   };
 
+  const drawerOnOpenCreate = () => {
+    dispatch(setIsUpdateForm(false));
+    dispatch(openDrawerRight());
+    dispatch(setSelectedRows([]));
+  };
+
   const menu = (
     <Menu style={{ padding: "0" }}>
       <CustomMenuItemDropdown
@@ -172,7 +195,15 @@ export const LayoutHeader = () => {
         {createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
           onClick: toggle,
         })}
-        {location?.pathname && <CRUDButtonList path={location?.pathname} />}
+        {canCreate ? (
+          <ActionWrapper>
+            <ActionItem onClick={drawerOnOpenCreate}>
+              <PlusOutlined style={{ color: "green" }} />
+            </ActionItem>
+          </ActionWrapper>
+        ) : (
+          <></>
+        )}
         <SearchFilter path={location?.pathname} />
       </div>
       <div

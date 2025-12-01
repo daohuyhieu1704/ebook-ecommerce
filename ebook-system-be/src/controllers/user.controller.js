@@ -48,8 +48,13 @@ class UserController {
   };
 
   postSignUp = async (req, res, next) => {
-    const { full_name, email, password } = JSON.parse(req.body);
-    let data = await new UserService().SignUp({ full_name, email, password });
+    const { firstName, lastName, email, password } = JSON.parse(req.body);
+    let data = await new UserService().SignUp({
+      firstName,
+      lastName,
+      email,
+      password,
+    });
 
     if (data.error) {
       return res.status(400).json(HttpResponse.error(data.error));
