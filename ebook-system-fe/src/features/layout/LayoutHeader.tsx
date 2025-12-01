@@ -48,6 +48,7 @@ import CategoryForm from "../Category/CategoryForm";
 import AuthorDetail from "../Author/AuthorDetail";
 import BookForm from "../Book/BookForm";
 import AuthorForm from "../Author/AuthorForm";
+import CategoryDetail from "../Category/CategoryDetail/CategoryDetail";
 const { confirm } = Modal;
 const { Text, Title } = Typography;
 
@@ -90,7 +91,7 @@ export const LayoutHeader = () => {
     },
     [PATH.CATEGORY_DETAIL]: {
       detailTitle: "Chi tiết sách",
-      cpnRender: <BookDetail />,
+      cpnRender: <CategoryDetail />,
       cpnName: "CateDetail",
     },
     [PATH.AUTHOR]: {
@@ -187,7 +188,7 @@ export const LayoutHeader = () => {
           </Button>
         </Dropdown>
         <Text code style={{ color: theme.colors.primary }}>
-          {userInfo?.fullname}
+          {userInfo?.name}
         </Text>
         <HeaderConfirm>
           <Dropdown overlay={menu} trigger={["click"]}>

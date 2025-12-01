@@ -15,7 +15,7 @@ import {
   setSelectedRows,
 } from "../layout/layoutSlice";
 import { selectDataBook, setDataBook } from "./BookSlice";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import ButtonFeature from "../../components/ButtonFeature/ButtonFeature";
 import { ROLE, rolePair } from "../../constants/common";
 
@@ -32,6 +32,7 @@ export default function Book() {
   const userInfo = useAppSelector(selectUserInfo);
   const selectedTab = useAppSelector(selectSelectedKey);
   const isRefetch = useAppSelector(selectIsRefetch);
+  const accToken = useAppSelector(selectAccessToken);
   function changeHandler(item: any) {
     setVisible(true);
     dispatch(openDrawerBottom());
@@ -58,6 +59,7 @@ export default function Book() {
       key: "Author",
       width: "200px",
       render: (value: any, item: any) => {
+        console.log(value);
         return (
           <Row justify="space-between">
             <Typography.Text ellipsis={true} style={{ width: "100px" }}>
@@ -112,7 +114,6 @@ export default function Book() {
   ];
   const onSuccess = (res: any) => {
     setLoading(false);
-    console.log("res", res);
     const dataSrc = res.data?.data
       .reverse()
       .map((data: any, index: number) => ({
@@ -137,7 +138,8 @@ export default function Book() {
   };
   const getData = () => {
     setLoading(true);
-    BookAPI.getAllBooks(`${userInfo.accessToken}`)
+    console.log(accToken);
+    BookAPI.getAllBooks(`${accToken}`)
       .then((res) => {
         onSuccess(res);
       })

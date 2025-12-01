@@ -75,11 +75,11 @@ class BookService {
       let query = await Book.findAll({
         include: [
           {
-            required: true,
+            required: false, // LEFT JOIN (lấy tất cả sách)
             model: Author,
           },
           {
-            required: true,
+            required: false, // LEFT JOIN (lấy tất cả sách)
             model: Category,
           },
         ],

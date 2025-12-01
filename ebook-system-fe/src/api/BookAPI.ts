@@ -3,7 +3,7 @@ import axiosClient from "../helper/axios/axiosClient";
 
 export const BookAPI = {
   getAllBooks(token: string) {
-    const url = `${process.env.REACT_APP_ENDPOINT}v1/api/book/admin/getall-books`;
+    const url = `${process.env.REACT_APP_ENDPOINT}v1/api/book/shop/getall-books`;
     return axiosClient.get(url, {
       headers: {
         authorization: `Bearer ${token}`,

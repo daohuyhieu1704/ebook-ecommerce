@@ -1,22 +1,20 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../app/hooks";
-import { PATH } from "../constants/common";
-import { selectUserInfo, selectRole } from "../features/Login/LoginSlice";
+import { selectUserInfo } from "../features/Login/LoginSlice";
+
 const HomePage = () => {
   const navigate = useNavigate();
-  const currentRoleId = useAppSelector(selectRole);
+  const userInfo = useAppSelector(selectUserInfo);
 
   useEffect(() => {
-    switch (userInfo?.role_id) {
-      case "1":
-        navigate(PATH.EMPLOYEES);
-        break;
-      case "2":
-        navigate(PATH.BOOK);
-        break;
+    if (userInfo?.start_url) {
+      console.log("Navigating to:", userInfo.start_url);
+      navigate(userInfo.start_url, { replace: true });
+      return;
     }
-  }, []);
+  }, [userInfo, navigate]);
+
   return <></>;
 };
 

@@ -2,12 +2,17 @@ import HttpResponse from "../utils/HttpResponse.js";
 import AuthenService from "../services/authen.service.js";
 class AuthenController {
   postLogin = async (req, res, next) => {
-    const { email, password } = JSON.parse(req.body);
-    let data = await new AuthenService().LogIn({ email, password });
-    if (data.error) {
-      return res.status(400).json(HttpResponse.error(data.error));
+    try {
+      const { email, password } = JSON.parse(req.body);
+      let data = await new AuthenService().LogIn({ email, password });
+      if (data.error) {
+        return res.status(400).json(HttpResponse.error(data.error));
+      }
+      return res.json(HttpResponse.success(data));
+    } catch (error) {
+      console.error("Lỗi trong postLogin:", error);
+      return res.status(500).json(HttpResponse.error("Lỗi Server Nội Bộ"));
     }
-    return res.json(HttpResponse.success(data));
   };
 
   postRefreshToken = async (req, res, next) => {

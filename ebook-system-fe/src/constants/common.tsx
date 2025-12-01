@@ -15,8 +15,8 @@ export const PATH = Object.freeze({
 });
 
 export const ROLE = Object.freeze({
-  admin: 1,
-  shop: 2,
+  admin: 0,
+  shop: 1,
 });
 export const rolePair: [string, number][] = Object.entries(ROLE);
 export const ROUTES = Object.freeze({

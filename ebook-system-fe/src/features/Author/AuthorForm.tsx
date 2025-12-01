@@ -11,7 +11,7 @@ import {
 import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
 import { BookAPI } from "../../api/BookAPI";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken } from "../Login/LoginSlice";
 import { AuthorAPI } from "../../api/AuthorAPI";
 
 type FormProps = {
@@ -27,7 +27,7 @@ export default function AuthorForm(props: FormProps) {
   const drawerRightVisible = useAppSelector(selectDrawerRightVisible);
   const isUpdateForm = useAppSelector(selectIsUpdateForm);
   const selectedRows = useAppSelector(selectSelectedRows);
-  const userInfo = useAppSelector(selectUserInfo);
+  const accessToken = useAppSelector(selectAccessToken);
 
   const onSubmitSuccess = () => {
     form.resetFields();
@@ -66,7 +66,7 @@ export default function AuthorForm(props: FormProps) {
             description: values.description,
             img: values.img,
           },
-          `${userInfo.accessToken}`
+          accessToken
         );
         onSubmitSuccess();
       } else {
@@ -76,7 +76,7 @@ export default function AuthorForm(props: FormProps) {
             description: values.description,
             img: values.img,
           },
-          `${userInfo.accessToken}`
+          accessToken
         );
         const { message } = res.data;
         NotificationCustom({

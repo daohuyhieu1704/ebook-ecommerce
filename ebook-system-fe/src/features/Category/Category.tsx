@@ -21,7 +21,7 @@ import {
   setIsRefetch,
 } from "../layout/layoutSlice";
 import { CategoryAPI } from "../../api/CategoryAPI";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import {
   selectCategoryData,
   setCategoryData,
@@ -39,7 +39,7 @@ export default function Category() {
   const isRefetch = useAppSelector(selectIsRefetch);
   const selectedTab = useAppSelector(selectSelectedKey);
   const data = useAppSelector(selectCategoryData);
-  const userInfo = useAppSelector(selectUserInfo);
+  const accessToken = useAppSelector(selectAccessToken);
 
   const onSuccess = (data: any) => {
     setLoading(false);
@@ -72,7 +72,7 @@ export default function Category() {
     navigate(`/category/${id_category}`, { replace: false });
   }
   const getData = () => {
-    CategoryAPI.getAllCategories(`${userInfo.accessToken}`)
+    CategoryAPI.getAllCategories(accessToken)
       .then(({ data }) => {
         if (data.code !== 200) {
           throw new Error(data.message);
@@ -140,3 +140,4 @@ export default function Category() {
     </>
   );
 }
+export {};

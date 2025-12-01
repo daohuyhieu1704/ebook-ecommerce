@@ -11,7 +11,7 @@ import {
 import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
 import { BookAPI } from "../../api/BookAPI";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken } from "../Login/LoginSlice";
 import { CategoryAPI } from "../../api/CategoryAPI";
 import { AuthorAPI } from "../../api/AuthorAPI";
 
@@ -28,7 +28,7 @@ export default function BookForm(props: FormProps) {
   const drawerRightVisible = useAppSelector(selectDrawerRightVisible);
   const isUpdateForm = useAppSelector(selectIsUpdateForm);
   const selectedRows = useAppSelector(selectSelectedRows);
-  const userInfo = useAppSelector(selectUserInfo);
+  const accessToken = useAppSelector(selectAccessToken);
   const [categoryOptions, setCategoryOptions] = useState<any>([]);
   const [authorOptions, setAuthorOptions] = useState<any>([]);
 
@@ -71,7 +71,7 @@ export default function BookForm(props: FormProps) {
             author_ID: values.author_ID,
             category_ID: values.category_ID,
           },
-          `${userInfo.accessToken}`
+          accessToken
         );
         onSubmitSuccess();
       } else {
@@ -84,7 +84,7 @@ export default function BookForm(props: FormProps) {
             author_ID: values.author_ID,
             category_ID: values.category_ID,
           },
-          `${userInfo.accessToken}`
+          accessToken
         );
         console.log("hc res: ", res.data);
         const { message } = res.data;
@@ -130,7 +130,7 @@ export default function BookForm(props: FormProps) {
       form.resetFields();
     } else {
       onFill(selectedRows[0]);
-      CategoryAPI.getAllCategories(`${userInfo.accessToken}`).then((res) => {
+      CategoryAPI.getAllCategories(accessToken).then((res) => {
         if (res.data.code !== 200) {
           throw new Error(res.data.message);
         }
@@ -159,7 +159,7 @@ export default function BookForm(props: FormProps) {
           }))
         );
       });
-      AuthorAPI.getAllAuthors(`${userInfo.accessToken}`).then((res) => {
+      AuthorAPI.getAllAuthors(accessToken).then((res) => {
         if (res.data.code !== 200) {
           throw new Error(res.data.message);
         }

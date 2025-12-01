@@ -15,7 +15,7 @@ import {
   setSelectedRows,
 } from "../../layout/layoutSlice";
 import { selectDataBook, setDataBook } from "../../Book/BookSlice";
-import { selectUserInfo } from "../../Login/LoginSlice";
+import { selectAccessToken, selectUserInfo } from "../../Login/LoginSlice";
 import ButtonFeature from "../../../components/ButtonFeature/ButtonFeature";
 import { ROLE } from "../../../constants/common";
 import { selectSearchCate } from "../CategorySlice";
@@ -30,6 +30,7 @@ export default function CategoryDetail() {
   const data = useAppSelector(selectDataBook);
   const [dataSrc, setDataSrc] = useState<any[]>([]);
   const mode = useAppSelector(selectMode);
+  const accessToken = useAppSelector(selectAccessToken);
   const userInfo = useAppSelector(selectUserInfo);
   const selectedTab = useAppSelector(selectSelectedKey);
   const isRefetch = useAppSelector(selectIsRefetch);
@@ -127,9 +128,9 @@ export default function CategoryDetail() {
     console.log("userInfo", userInfo);
     if (!userInfo) return;
     setLoading(true);
-    const role = userInfo.role === "1" ? ROLE.admin : ROLE.shop;
+    const role = userInfo.role_id === "1" ? ROLE.admin : ROLE.shop;
     if (role === ROLE.admin) {
-      BookAPI.getAllBooks(`${userInfo.accessToken}`)
+      BookAPI.getAllBooks(accessToken)
         .then((res) => {
           onSuccess(res);
         })

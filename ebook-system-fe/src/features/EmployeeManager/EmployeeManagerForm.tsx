@@ -13,7 +13,7 @@ import {
   setIsLoadingSubmit,
   setIsRefetch,
 } from "../layout/layoutSlice";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import { selectDataEmp, setDataEmp } from "./EmployeeManagerSlice";
 import moment from "moment";
 import { UserAPI } from "../../api/UserAPI";
@@ -37,6 +37,7 @@ export default function EmployeeManagerForm(props: FormProps) {
   const drawerRightVisible = useAppSelector(selectDrawerRightVisible);
   const userInfo = useAppSelector(selectUserInfo);
   const dataTable = useAppSelector(selectDataEmp);
+  const accessToken = useAppSelector(selectAccessToken);
   const [role, setRole] = useState("");
   const [gender, setGender] = useState("");
   const onSubmitSuccess = (res: any) => {
@@ -101,7 +102,7 @@ export default function EmployeeManagerForm(props: FormProps) {
             birthday: formatDateToDdMmYyyy(new Date(values?.birthday)),
             enable: values?.enable === true ? 1 : 0,
           },
-          `${userInfo.accessToken}`
+          accessToken
         );
         dispatch(setIsLoadingSubmit(false));
         onSubmitSuccess(res);
@@ -112,7 +113,7 @@ export default function EmployeeManagerForm(props: FormProps) {
             email: values?.email,
             password: values?.password,
           },
-          `${userInfo.accessToken}`
+          accessToken
         );
         if (res1.data.code !== 200) {
           dispatch(setIsLoadingSubmit(false));
@@ -131,7 +132,7 @@ export default function EmployeeManagerForm(props: FormProps) {
               birthday: formatDateToDdMmYyyy(new Date(values?.birthday)),
               enable: values?.enable === true ? 1 : 0,
             },
-            `${userInfo.accessToken}`
+            accessToken
           );
           onSubmitSuccess(res2);
         }

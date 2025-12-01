@@ -134,29 +134,42 @@ class UserService {
 
   async GetAllAccounts() {
     try {
-      let role = await Role.findOne({
-        where: { name: "admin" },
+      let employeeRole = await Role.findOne({
+        where: { id: "employee" },
+        attributes: ["id"],
       });
 
-      let list_accounts = await UserHasRole.findAll({
-        where: { role_ID: role.dataValues.id },
-      });
-      let list_account_ids = list_accounts.map(
-        (account) => account.dataValues.user_ID
-      );
-
-      let data = await Promise.all(
-        list_account_ids.map(async (id) => {
-          let user = await User.findByPk(id);
-
-          return user.dataValues;
-        })
-      );
-      if (data) {
-        return { data };
+      if (!employeeRole) {
+        return { data: [] };
       }
+
+      let employeeUsers = await User.findAll({
+        attributes: [
+          "id",
+          "first_name",
+          "last_name",
+          "email",
+          "phone_number",
+          "birthday",
+          "enable",
+          "created_at",
+        ],
+        include: [
+          {
+            model: UserHasRole,
+            required: true, // INNER JOIN
+            attributes: [],
+            where: { role_ID: employeeRole.id },
+          },
+        ],
+      });
+
+      const data = employeeUsers.map((user) => user.toJSON());
+
+      return { data };
     } catch (error) {
-      return { error };
+      console.error("Error in GetAllAccounts:", error);
+      return { error: error.message };
     }
   }
 

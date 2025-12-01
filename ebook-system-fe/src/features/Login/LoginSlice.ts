@@ -14,6 +14,7 @@ export interface UserInfo {
   email?: string;
   role_id?: string;
   phone_number?: string;
+  start_url?: string;
 }
 
 export interface LoginResponsePayload {
@@ -31,6 +32,7 @@ export interface LoginState {
   userInfo: UserInfo;
   role: string;
   permissions: string[];
+  accessToken: string;
   systemRoles: RoleType[];
   isLoggedOut: boolean;
 }
@@ -48,6 +50,10 @@ const initialState: LoginState = {
   role:
     localStorage.getItem(LOCAL_STORAGE_ITEM.ROLE) ||
     sessionStorage.getItem(LOCAL_STORAGE_ITEM.ROLE) ||
+    "",
+  accessToken:
+    localStorage.getItem(LOCAL_STORAGE_ITEM.ACCESS_TOKEN) ||
+    sessionStorage.getItem(LOCAL_STORAGE_ITEM.ACCESS_TOKEN) ||
     "",
   permissions:
     JSON.parse(localStorage.getItem("PERMISSIONS") || "[]") ||
@@ -71,6 +77,7 @@ export const loginSlice = createSlice({
       state.userInfo = user;
       state.role = user.role_id || "";
       state.permissions = permissions;
+      state.accessToken = accessToken;
       state.systemRoles = roles;
 
       const storage = remember ? localStorage : sessionStorage;
@@ -90,6 +97,7 @@ export const loginSlice = createSlice({
       state.userInfo = {};
       state.role = "";
       state.permissions = [];
+      state.accessToken = "";
       state.systemRoles = [];
 
       localStorage.removeItem(LOCAL_STORAGE_ITEM.USER_INFO);
@@ -124,5 +132,6 @@ export const selectPermissions = (state: RootState) => state.login.permissions;
 export const selectSystemRoles = (state: RootState) => state.login.systemRoles;
 export const selectIsLoggedIn = (state: RootState) => state.login.isLoggedIn;
 export const selectIsLoggedOut = (state: RootState) => state.login.isLoggedOut;
+export const selectAccessToken = (state: RootState) => state.login.accessToken;
 
 export default loginSlice.reducer;

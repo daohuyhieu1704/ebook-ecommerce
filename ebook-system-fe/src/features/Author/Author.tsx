@@ -15,7 +15,7 @@ import {
   setSelectedRows,
 } from "../layout/layoutSlice";
 import { selectDataAuthor, setDataAuthor } from "./AuthorSlice";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import ButtonFeature from "../../components/ButtonFeature/ButtonFeature";
 import { ROLE, rolePair } from "../../constants/common";
 import { AuthorAPI } from "../../api/AuthorAPI";
@@ -33,6 +33,7 @@ export default function Author() {
   const userInfo = useAppSelector(selectUserInfo);
   const selectedTab = useAppSelector(selectSelectedKey);
   const isRefetch = useAppSelector(selectIsRefetch);
+  const accessToken = useAppSelector(selectAccessToken);
   function changeHandler(item: any) {
     setVisible(true);
     dispatch(openDrawerBottom());
@@ -102,7 +103,7 @@ export default function Author() {
   };
   const getData = () => {
     setLoading(true);
-    AuthorAPI.getAllAuthors(`${userInfo.accessToken}`)
+    AuthorAPI.getAllAuthors(accessToken)
       .then((res) => {
         onSuccess(res);
       })

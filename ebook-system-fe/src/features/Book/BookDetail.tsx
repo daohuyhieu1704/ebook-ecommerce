@@ -6,7 +6,7 @@ import {
   selectSelectedRows,
   setSelectedRows,
 } from "../layout/layoutSlice";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import { Avatar, Col, Divider, Image, Row, Typography } from "antd";
 import { HomeOutlined } from "@ant-design/icons";
 import ButtonFeature from "../../components/ButtonFeature/ButtonFeature";
@@ -22,10 +22,10 @@ export default function BookDetail() {
   const dispatch = useDispatch();
   const selectedRows = useAppSelector(selectSelectedRows);
   const dataFeedback = useAppSelector(selectDataFeedback);
-  const userInfo = useAppSelector(selectUserInfo);
+  const accessToken = useAppSelector(selectAccessToken);
   useEffect(() => {
     if (selectedRows[0]) {
-      FeedbackAPI.getAllFeedbacks(selectedRows[0].id, `${userInfo.accessToken}`)
+      FeedbackAPI.getAllFeedbacks(selectedRows[0].id, accessToken)
         .then((res) => {
           console.log(res);
           dispatch(setDataFeedback(res.data.data));
@@ -184,3 +184,5 @@ export default function BookDetail() {
     </Row>
   );
 }
+
+export {};

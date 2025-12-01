@@ -3,12 +3,18 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { LoginFormTitle, LoginFormWrapper, LoginWrapper } from "./Login.style";
 import { useAppDispatch } from "../../app/hooks";
-import { loginSuccess, LoginType } from "./LoginSlice";
+import { loginSuccess } from "./LoginSlice";
 import { LOCAL_STORAGE_ITEM, PATH } from "../../constants/common";
 import { useState } from "react";
 import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
 import colors from "../../theme/colors";
 import { AuthenAPI } from "../../api/AuthenAPI";
+
+type LoginType = {
+  username: string;
+  password: string;
+  remember?: boolean;
+};
 
 export const Login = () => {
   const [form] = Form.useForm();

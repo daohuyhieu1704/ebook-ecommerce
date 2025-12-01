@@ -15,8 +15,9 @@ import { useLogout } from "../../hooks/useLogout";
 import { theme } from "../../theme/theme";
 import type { MenuProps } from "antd";
 import {
-  CliToSerLogin,
+  // CliToSerLogin,
   selectIsLoggedIn,
+  selectPermissions,
   selectRole,
   selectUserInfo,
 } from "../Login/LoginSlice";
@@ -53,6 +54,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
   const collapsed = useAppSelector(selectCollapsed);
   const selectedKey = useAppSelector(selectSelectedKey);
   const userInfo = useAppSelector(selectUserInfo);
+  const activePermissions = useAppSelector(selectPermissions);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -93,17 +95,32 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
     } as MenuItem;
   }
 
-  // const totalVal: { [x: string]: number } = {
-  //   [`${PATH.COMPLAINT}`]: totalQ,
-  // }
-
   const listRouter = useMemo(
     () => [
-      ...MANAGEMENT_MENU.filter((item: any) =>
-        item.permissions.includes(
-          userInfo.role === "1" ? ROLE.admin : ROLE.shop
-        )
-      ).map((item) => {
+      ...MANAGEMENT_MENU.filter((item: any) => {
+        if (!item.path || item.path.length === 0) {
+          return true;
+        }
+        const hasRequiredPermission = activePermissions.some((slug: string) => {
+          let impliedPath = "";
+          const parts = slug.split(".");
+
+          if (parts.length > 1) {
+            const actionPart = parts[1];
+            if (actionPart.includes("_")) {
+              const suffix = actionPart.split("_").pop();
+              impliedPath = `/${suffix}`;
+            } else {
+              impliedPath = `/${actionPart}`;
+            }
+          } else {
+            impliedPath = `/${parts[0]}`;
+          }
+          return item.path === impliedPath;
+        });
+
+        return hasRequiredPermission;
+      }).map((item) => {
         if (!item.children) {
           return getItem(
             <>
@@ -119,12 +136,6 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
                   }}
                 >
                   {`${item.name}`}
-                  {/* {
-                    totalVal[`${item.path}`] > 0 ?
-                      <Badge size="small" count={totalVal[`${item.path}`]} offset={[-6, 0]}></Badge>
-                      :
-                      <></>
-                  } */}
                 </div>
               </Link>
             </>,
@@ -132,44 +143,11 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
             item.icon
           );
         } else {
-          return getItem(
-            item.name,
-            item.name,
-            item.icon
-            // item.children.map((item) =>
-            //   getItem(
-            //     <>
-            //       <Link to={item.path}></Link>
-            //       <Link to={item.path}>
-            //         <div
-            //           style={{
-            //             display: "flex",
-            //             flexDirection: "row",
-            //             width: "98%",
-            //             justifyContent: "space-between",
-            //             alignItems: "center",
-            //           }}
-            //         >
-            //           {`${item.name}`}
-            //           {/* {
-            //           totalVal[`${item.path}`] > 0 ?
-            //             <Badge size="small" count={totalVal[`${item.path}`]} offset={[-6, 0]}></Badge>
-            //             :
-            //             <></>
-            //         } */}
-            //         </div>
-            //       </Link>
-            //     </>,
-            //     item.path,
-            //     item.icon
-            //   )
-            // ),
-            // "group"
-          );
+          return getItem(item.name, item.name, item.icon);
         }
       }),
     ],
-    [userInfo.role]
+    [userInfo.role_id]
   );
 
   return `${ignoreAppLayout}`.includes(location.pathname) ? (

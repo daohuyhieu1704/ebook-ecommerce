@@ -13,7 +13,7 @@ import {
   selectSelectedKey,
   setIsRefetch,
 } from "../layout/layoutSlice";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import { selectDataEmp, setDataEmp } from "./EmployeeManagerSlice";
 import ButtonFeature from "../../components/ButtonFeature/ButtonFeature";
 import { UserAPI } from "../../api/UserAPI";
@@ -29,6 +29,7 @@ export default function EmployeeManager() {
   const data = useAppSelector(selectDataEmp);
   const isRefetch = useAppSelector(selectIsRefetch);
   const selectedTab = useAppSelector(selectSelectedKey);
+  const accessToken = useAppSelector(selectAccessToken);
   const [loadingEmpItem, setLoadingEmpItem] = useState(false);
   function changeHandler(item: any) {
     setVisible(true);
@@ -37,7 +38,7 @@ export default function EmployeeManager() {
     console.log(value, item);
     if (value) {
       console.log("restore");
-      EmployeeManagerAPI.activate(item.username, `${userInfo.accessToken}`)
+      EmployeeManagerAPI.activate(item.username, accessToken)
         .then((res: any) => {
           setLoadingEmpItem(false);
           dispatch(setIsRefetch(true));
@@ -52,7 +53,7 @@ export default function EmployeeManager() {
         });
     } else {
       console.log("stop");
-      EmployeeManagerAPI.deactive(item.username, `${userInfo.accessToken}`)
+      EmployeeManagerAPI.deactive(item.username, accessToken)
         .then((res: any) => {
           setLoadingEmpItem(false);
           dispatch(setIsRefetch(true));
@@ -110,7 +111,7 @@ export default function EmployeeManager() {
   const getData = () => {
     setLoading(true);
     UserAPI.admin
-      .getAllAccount(`${userInfo?.accessToken}`)
+      .getAllAccount(accessToken)
       .then(({ data }) => {
         setLoading(false);
         NotificationCustom({

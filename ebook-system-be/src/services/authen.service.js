@@ -33,28 +33,28 @@ class AuthenService {
         ],
       });
 
-      // 3. Xử lý dữ liệu Permissions & Tạo Start URL
       const permissions = [];
-      let startUrl = "/"; // Mặc định nếu không tìm thấy quyền nào
+      let startUrl = "/";
 
       if (userRoles && userRoles.Role) {
         const rolePermissions = userRoles.Role.Permissions || [];
 
-        // A. Lấy danh sách slug permissions
         rolePermissions.forEach((p) => permissions.push(p.slug));
 
-        // B. Logic tạo đường dẫn từ quyền ĐẦU TIÊN (Priority High)
-        // Giả sử quy tắc slug: "module.path" (vd: "system.employees", "user.book")
         if (rolePermissions.length > 0) {
-          const firstSlug = rolePermissions[0].slug; // vd: "manager.employees"
+          const firstSlug = rolePermissions[0].slug;
 
-          const parts = firstSlug.split("."); // Tách chuỗi: ["manager", "employees"]
+          const parts = firstSlug.split(".");
 
           if (parts.length > 1) {
-            // Lấy phần sau dấu chấm làm path
-            startUrl = `/${parts[1]}`; // -> "/employees"
+            const pathPart = parts[1];
+            if (pathPart.includes("_")) {
+              const pathSuffix = pathPart.substring(pathPart.indexOf("_") + 1);
+              startUrl = `/${pathSuffix}`;
+            } else {
+              startUrl = `/${pathPart}`;
+            }
           } else {
-            // Trường hợp slug không có dấu chấm (vd: "dashboard")
             startUrl = `/${parts[0]}`;
           }
         }
@@ -66,7 +66,7 @@ class AuthenService {
         expiresIn: "150m",
       });
       let refreshToken = jsonwebtoken.sign({ id: user_id }, "secret-key", {
-        expiresIn: "15000m",
+        expiresIn: "30000m",
       });
 
       await Token.destroy({ where: { user_ID: user_id } });
@@ -83,7 +83,7 @@ class AuthenService {
           email: user.email,
           role_id: currentRoleId,
 
-          start_url: startUrl, // <--- URL BE đã tính toán xong
+          start_url: startUrl,
         },
         permissions: permissions,
         accessToken,
