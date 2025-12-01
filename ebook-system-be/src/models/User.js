@@ -1,7 +1,12 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database/init.mysqldb.js";
+import bcrypt from "bcrypt";
 
-class User extends Model {}
+class User extends Model {
+  async matchPassword(enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+  }
+}
 
 User.init(
   {

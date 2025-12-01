@@ -1,63 +1,98 @@
 import jsonwebtoken from "jsonwebtoken";
-import crypto from "crypto";
 import User from "../models/User.js";
 import Token from "../models/Token.js";
 import Role from "../models/Role.js";
 import UserHasRole from "../models/UserHasRole.js";
-import { where } from "sequelize";
-
+import Permission from "../models/Permission.js";
+import RoleService from "../services/role.service.js";
 class AuthenService {
   async LogIn({ email, password }) {
     try {
-      password = crypto.createHash("sha256").update(password).digest("hex");
+      let user = await User.findOne({ where: { email } });
 
-      let user = await User.findOne({
-        where: {
-          email,
-          password,
-        },
-      });
+      if (!user) {
+        throw new Error("User not found");
+      }
 
-      if (user) {
-        let user_id = user.dataValues["id"];
-        let firstName = user.dataValues["first_name"];
-        let lastName = user.dataValues["last_name"];
+      const isMatch = await user.matchPassword(password);
 
-        let userRoles = await UserHasRole.findAll({
-          where: { user_ID: user_id },
+      if (!isMatch) {
+        throw new Error("Wrong email or password");
+      }
+
+      const [userHasRole, allSystemRoles] = await Promise.all([
+        UserHasRole.findOne({
+          where: { user_ID: user.id },
           include: [
             {
               model: Role,
               required: true,
+              include: [
+                {
+                  model: Permission,
+                  required: false,
+                  through: { attributes: [] },
+                },
+              ],
             },
           ],
-        });
+        }),
+        new RoleService().getAllRoles(),
+      ]);
 
-        let roles = userRoles.map((role) => role.role_ID);
+      let currentRoleId = null;
+      let currentRoleName = "";
+      let permissions = [];
 
-        let accessToken = jsonwebtoken.sign({ id: user_id }, "secret-key", {
-          expiresIn: "150m",
-        });
-        let refreshToken = jsonwebtoken.sign({ id: user_id }, "secret-key", {
-          expiresIn: "15000m",
-        });
-        await Token.destroy({
-          where: {
-            user_ID: user_id,
-          },
-        });
+      if (userHasRole && userHasRole.Role) {
+        currentRoleId = userHasRole.Role.id;
+        currentRoleName = userHasRole.Role.name;
 
-        let token = new Token({
-          user_ID: user_id,
-          refresh_token: refreshToken,
-        });
-        await token.save();
-        let fullName = `${firstName} ${lastName}`;
-        return { name: fullName, roles, accessToken, refreshToken };
+        if (userHasRole.Role.Permissions) {
+          permissions = userHasRole.Role.Permissions.map((p) => p.slug);
+        }
       }
-      return { error: "Email hoặc password không chính xác" };
+
+      let user_id = user.id;
+
+      let accessToken = jsonwebtoken.sign(
+        {
+          id: user_id,
+          role_id: currentRoleId,
+          role_name: currentRoleName,
+        },
+        "secret-key",
+        { expiresIn: "150m" }
+      );
+
+      let refreshToken = jsonwebtoken.sign({ id: user_id }, "secret-key", {
+        expiresIn: "15000m",
+      });
+
+      await Token.destroy({ where: { user_ID: user_id } });
+      await Token.create({ user_ID: user_id, refresh_token: refreshToken });
+
+      let fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim();
+
+      return {
+        user: {
+          id: user_id,
+          name: fullName,
+          email: user.email,
+          role_id: currentRoleId,
+        },
+        current_role: {
+          id: currentRoleId,
+          name: currentRoleName,
+        },
+        permissions: permissions,
+
+        system_roles: allSystemRoles,
+
+        accessToken,
+        refreshToken,
+      };
     } catch (error) {
-      // throw "Email hoặc password không chính xác"
       throw error;
     }
   }
