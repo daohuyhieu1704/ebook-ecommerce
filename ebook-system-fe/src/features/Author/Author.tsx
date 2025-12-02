@@ -1,7 +1,6 @@
-import { Button, Row, Tag, Typography } from "antd";
+import { Row } from "antd"; // Bỏ Button, Tag, Typography không cần thiết
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { BookAPI } from "../../api/BookAPI";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
 import TableLayout from "../../components/TableLayout/TableLayout";
@@ -17,7 +16,6 @@ import {
 import { selectDataAuthor, setDataAuthor } from "./AuthorSlice";
 import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import ButtonFeature from "../../components/ButtonFeature/ButtonFeature";
-import { ROLE, rolePair } from "../../constants/common";
 import { AuthorAPI } from "../../api/AuthorAPI";
 
 export default function Author() {
@@ -27,18 +25,23 @@ export default function Author() {
   const [count, setCount] = useState<number>();
   const [offset, setOffset] = useState<number>(0);
   const [visible, setVisible] = useState(false);
+
   const data = useAppSelector(selectDataAuthor);
-  const [dataSrc, setDataSrc] = useState<any[]>([]);
   const mode = useAppSelector(selectMode);
   const userInfo = useAppSelector(selectUserInfo);
   const selectedTab = useAppSelector(selectSelectedKey);
   const isRefetch = useAppSelector(selectIsRefetch);
   const accessToken = useAppSelector(selectAccessToken);
+
+  // [NEW] Lấy userRole để truyền xuống TableLayout (cho hiệu ứng Neon)
+  const userRole = userInfo?.role_id || "customer";
+
   function changeHandler(item: any) {
     setVisible(true);
     dispatch(openDrawerBottom());
     dispatch(setSelectedRows([item]));
   }
+
   const columns: object[] = [
     {
       title: "STT",
@@ -53,6 +56,7 @@ export default function Author() {
       key: "name",
       ellipsis: true,
       width: "200px",
+      // Không dùng Typography để màu chữ tự ăn theo theme
     },
     {
       title: "Tiểu sử",
@@ -62,9 +66,19 @@ export default function Author() {
       render: (value: string, item: any) => {
         return (
           <Row justify="space-between">
-            <Typography.Text ellipsis={true} style={{ width: "300px" }}>
+            {/* [UPDATE] Thay Typography bằng span có style xử lý text dài */}
+            <span
+              style={{
+                width: "300px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                color: "inherit", // Quan trọng: Kế thừa màu chữ trắng từ Table
+              }}
+              title={value} // Tooltip native của trình duyệt
+            >
               {value}
-            </Typography.Text>
+            </span>
             <ButtonFeature
               value={value}
               item={item}
@@ -75,6 +89,7 @@ export default function Author() {
       },
     },
   ];
+
   const onSuccess = (res: any) => {
     setLoading(false);
     const dataSrc = res.data?.data
@@ -87,12 +102,15 @@ export default function Author() {
     console.log(dataSrc);
     setCount(res.data.count);
     dispatch(setDataAuthor(dataSrc));
-    NotificationCustom({
-      type: "success",
-      message: "Thành công",
-      description: `${res.data.message}`,
-    });
+
+    // Có thể bỏ bớt thông báo nếu không cần thiết mỗi lần load
+    // NotificationCustom({
+    //   type: "success",
+    //   message: "Thành công",
+    //   description: `${res.data.message}`,
+    // });
   };
+
   const onError = (err: any) => {
     setLoading(false);
     NotificationCustom({
@@ -101,6 +119,7 @@ export default function Author() {
       description: err.data?.message,
     });
   };
+
   const getData = () => {
     setLoading(true);
     AuthorAPI.getAllAuthors(accessToken)
@@ -111,6 +130,7 @@ export default function Author() {
         onError(err);
       });
   };
+
   useEffect(() => {
     getData();
   }, []);
@@ -121,6 +141,7 @@ export default function Author() {
       dispatch(setIsRefetch(false));
     }
   }, [isRefetch]);
+
   return (
     <>
       <TableLayout
@@ -131,6 +152,7 @@ export default function Author() {
         loading={loading}
         total={count}
         setOffset={setOffset}
+        $userRole={userRole}
       />
     </>
   );

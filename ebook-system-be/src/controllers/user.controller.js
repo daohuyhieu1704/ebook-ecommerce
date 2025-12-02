@@ -96,6 +96,15 @@ class UserController {
     return res.json(HttpResponse.success(data));
   };
 
+  getAllAccounts = async (req, res, next) => {
+    let data = await new UserService().GetAllAccounts();
+
+    if (data?.error) {
+      return res.status(400).json(HttpResponse.error(data.error));
+    }
+    return res.json(HttpResponse.success(data));
+  };
+
   getAccount = async (req, res, next) => {
     const user = JSON.parse(req.body);
     let data = await new UserService().GetAccountByID({ id: req.user, user });

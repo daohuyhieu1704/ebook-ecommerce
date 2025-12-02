@@ -1,4 +1,4 @@
-import { Button, Modal, Switch } from "antd";
+import { Button, Modal, Switch, Tag } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -13,7 +13,11 @@ import {
   selectSelectedKey,
   setIsRefetch,
 } from "../layout/layoutSlice";
-import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
+import {
+  selectAccessToken,
+  selectSystemRoles,
+  selectUserInfo,
+} from "../Login/LoginSlice";
 import { selectDataEmp, setDataEmp } from "./EmployeeManagerSlice";
 import ButtonFeature from "../../components/ButtonFeature/ButtonFeature";
 import { UserAPI } from "../../api/UserAPI";
@@ -30,12 +34,26 @@ export default function EmployeeManager() {
   const isRefetch = useAppSelector(selectIsRefetch);
   const selectedTab = useAppSelector(selectSelectedKey);
   const accessToken = useAppSelector(selectAccessToken);
+  const systemRoles = useAppSelector(selectSystemRoles);
+
+  const getRoleColor = (roleId: string) => {
+    switch (roleId) {
+      case "admin":
+        return "red";
+      case "employee":
+        return "blue";
+      case "customer":
+        return "green";
+      default:
+        return "default";
+    }
+  };
+
   const [loadingEmpItem, setLoadingEmpItem] = useState(false);
   function changeHandler(item: any) {
     setVisible(true);
   }
   const changeStatusEmpHandler = (value: boolean, item: any) => {
-    console.log(value, item);
     if (value) {
       console.log("restore");
       EmployeeManagerAPI.activate(item.username, accessToken)
@@ -90,6 +108,16 @@ export default function EmployeeManager() {
       title: "SDT",
       dataIndex: "phone_number",
       key: "phone_number",
+    },
+    {
+      title: "Vai trò",
+      key: "role_ID",
+      render: (item: any, record: any) => {
+        const foundRole = systemRoles.find((r: any) => r.id === item.role_ID);
+        const roleName = foundRole ? foundRole.name : "N/A";
+
+        return <Tag color={getRoleColor(item.role_ID)}>{roleName}</Tag>;
+      },
     },
     {
       key: "options",
