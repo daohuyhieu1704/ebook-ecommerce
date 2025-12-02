@@ -15,7 +15,6 @@ import { useLogout } from "../../hooks/useLogout";
 import { theme } from "../../theme/theme";
 import type { MenuProps } from "antd";
 import {
-  // CliToSerLogin,
   selectIsLoggedIn,
   selectPermissions,
   selectRole,
@@ -48,6 +47,7 @@ import colors from "../../theme/colors";
 const { confirm } = Modal;
 
 const ignoreAppLayout = [PATH.LOGIN];
+
 export const AdminLayout = ({ children }: { children: JSX.Element }) => {
   const location = useLocation();
   const logout: any = useLogout();
@@ -66,7 +66,6 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
   }, [location]);
 
   const currentRoleName = useMemo(() => {
-    console.log(userInfo.role_id, systemRoles);
     if (!userInfo.role_id || systemRoles.length === 0) {
       return "Khách hàng";
     }
@@ -144,6 +143,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
                     width: "98%",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    color: colors.textColor,
                   }}
                 >
                   {`${item.name}`}
@@ -158,7 +158,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
         }
       }),
     ],
-    [userInfo.role_id]
+    [userInfo.role_id, activePermissions]
   );
 
   return `${ignoreAppLayout}`.includes(location.pathname) ? (
@@ -179,6 +179,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
                   left: 0,
                   top: 0,
                   bottom: 0,
+                  backgroundColor: colors.secondary,
                 }
           }
         >
@@ -204,7 +205,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
             </LogoWrapper>
           )}
           <Menu
-            //theme='dark'
+            theme="dark"
             mode="inline"
             defaultSelectedKeys={[selectedKey]}
             selectedKeys={[selectedKey]}
@@ -214,7 +215,10 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
             }}
             defaultOpenKeys={["userpage", "adminpage"]}
             items={listRouter}
-            style={{}}
+            style={{
+              backgroundColor: colors.secondary,
+              color: colors.textColor,
+            }}
           />
         </CustomSider>
         <Layout
@@ -222,6 +226,7 @@ export const AdminLayout = ({ children }: { children: JSX.Element }) => {
           style={{
             marginLeft: `${collapsed ? 80 : 220}px`,
             transitionDuration: "0.25s",
+            backgroundColor: colors.backgroundColor,
           }}
         >
           <LayoutHeader />

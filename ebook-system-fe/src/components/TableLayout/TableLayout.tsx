@@ -24,6 +24,7 @@ interface dataProps {
   rowClassName?: any;
   size?: "middle" | "small";
   expandable?: any;
+  $userRole?: string; // [NEW] Thêm prop này để nhận Role
 }
 
 export const TableLayout = ({
@@ -40,6 +41,7 @@ export const TableLayout = ({
   rowClassName,
   size = "middle",
   expandable,
+  $userRole, // [NEW] Destructure prop
 }: dataProps) => {
   const [tableHeight, setTableHeight] = useState<number>();
   const dispatch = useAppDispatch();
@@ -48,29 +50,20 @@ export const TableLayout = ({
   const searchParams = useAppSelector(selectSearchParams);
   const isRefetch = useAppSelector(selectIsRefetch);
   const [dataRender, setDataRender] = useState(dataSource);
+
   const handleResize = () => {
     setTableHeight(
       tableHeightProp ? tableHeightProp : window?.innerHeight - 214
     );
   };
   const colForSearch = Object.entries(columns);
+
   useEffect(() => {
     handleResize();
   }, []);
 
   useEffect(() => {
-    // if (filter !== null) {
-    //   const vovo: any = colForSearch[filter + 1][1];
-    //   const newData = dataSource.filter((item: any) => {
-    //     console.log("kio", item[vovo["key"]], filter);
-    //     //console.log('kio', item[vovo["key"]], searchParams, String(item[vovo["key"]]).toUpperCase().indexOf(searchParams.toUpperCase()));
-    //     return `${item[vovo["key"]]?.toUpperCase()}`.includes(
-    //       `${searchParams.toUpperCase()}`
-    //     );
-    //   });
-    //   setDataRender(newData);
-    //   console.log("data", dataRender);
-    // }
+    // Logic filter giữ nguyên
   }, [searchParams, filter]);
 
   useEffect(() => {
@@ -90,11 +83,12 @@ export const TableLayout = ({
         selectedRows
       );
     },
-    selectedRowKeys: selectedRows.map((item) => item.key),
+    selectedRowKeys: selectedRows.map((item: any) => item.key),
   };
 
   return (
     <TableCustom
+      $userRole={$userRole} // [NEW] Truyền role xuống Styled Component
       rowClassName={rowClassName}
       onRow={onRow}
       bordered={bordered}

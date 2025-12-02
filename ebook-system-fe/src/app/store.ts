@@ -1,3 +1,4 @@
+import { CartItem } from "./../features/Checkout/CartSlice";
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import loginReducer from "../features/Login/LoginSlice";
 import layoutReducer from "../features/layout/layoutSlice";
@@ -5,6 +6,7 @@ import EmployeeManagerReducer from "../features/EmployeeManager/EmployeeManagerS
 import BookReducer from "../features/Book/BookSlice";
 import CategoryReducer from "../features/Category/CategorySlice";
 import AuthorReducer from "../features/Author/AuthorSlice";
+import CartReducer from "../features/Checkout/CartSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +16,7 @@ export const store = configureStore({
     emp: EmployeeManagerReducer,
     category: CategoryReducer,
     author: AuthorReducer,
+    cart: CartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

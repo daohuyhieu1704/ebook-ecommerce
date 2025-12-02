@@ -1,6 +1,8 @@
 import ShoppingSession from "../models/ShoppingSession.js";
 import CartItem from "../models/CartItem.js";
 import Book from "../models/Book.js";
+import Author from "../models/Author.js";
+import Category from "../models/Category.js";
 import OrderDetail from "../models/OrderDetail.js";
 import OrderItem from "../models/OrderItem.js";
 import PaymentDetail from "../models/PaymentDetail.js";
@@ -15,7 +17,10 @@ class OrderService {
       });
 
       if (!session) {
-        return { error: "No shopping session found for this user." };
+        return {
+          session: null,
+          items: [],
+        };
       }
 
       const cartItems = await CartItem.findAll({
@@ -24,49 +29,83 @@ class OrderService {
           {
             model: Book,
             as: "book",
-            attributes: ["id", "title", "description", "price"],
+            attributes: [
+              "id",
+              "title",
+              "description",
+              "price",
+              "image",
+              "pdf_url",
+            ],
+            include: [
+              {
+                model: Author,
+                as: "Author",
+                attributes: ["name"],
+              },
+              {
+                model: Category,
+                as: "Category",
+                attributes: ["name"],
+              },
+            ],
           },
         ],
         attributes: ["id", "checked", "created_at"],
         order: [["created_at", "DESC"]],
       });
 
-      const items = cartItems.map((item) => ({
-        id: item.id,
-        checked: item.checked,
-        book: item.book ? item.book : null,
-        addedOn: item.created_at,
-      }));
-
-      return items;
+      return {
+        session: session,
+        items: cartItems,
+      };
     } catch (error) {
       console.error("Error fetching cart items:", error);
-      return { error: error.message };
+      throw error;
     }
   }
 
   async AddToCart({ user, book_ID }) {
     try {
-      let session = await ShoppingSession.findOne({
-        where: {
-          user_ID: user,
-        },
+      let session = await ShoppingSession.findOne({ where: { user_ID: user } });
+      if (!session) {
+        session = await ShoppingSession.create({ user_ID: user, total: 0 });
+      }
+
+      const bookData = await Book.findOne({ where: { id: book_ID } });
+      if (!bookData) {
+        throw new Error("Sách không tồn tại.");
+      }
+
+      let cartItem = await CartItem.findOne({
+        where: { session_ID: session.id, book_ID: book_ID },
       });
-      await CartItem.create({ session_ID: session.id, book_ID });
-      let { price } = await Book.findOne({ where: { id: book_ID } });
-      let total = session.total + price;
-      ShoppingSession.update(
-        { total },
-        {
-          where: {
-            id: session.id,
-          },
-        }
-      );
-      let allCartItems = await CartItem.findAll();
+
+      if (cartItem) {
+        throw new Error(
+          `Sách "${bookData.title}" là sản phẩm số, bạn chỉ được mua tối đa 1 bản.`
+        );
+      }
+
+      if (!cartItem) {
+        cartItem = await CartItem.create({
+          session_ID: session.id,
+          book_ID,
+          quantity: 1,
+          checked: true,
+        });
+      }
+
+      let total = session.total + bookData.price;
+      await ShoppingSession.update({ total }, { where: { id: session.id } });
+
+      let allCartItems = await CartItem.findAll({
+        where: { session_ID: session.id },
+        include: ["book"],
+      });
+
       return { total, allCartItems };
     } catch (error) {
-      // throw "Email hoặc password không chính xác"
       throw error;
     }
   }

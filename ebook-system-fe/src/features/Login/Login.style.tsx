@@ -1,23 +1,23 @@
 import styled from "styled-components";
 import { themeGet } from "@styled-system/theme-get";
-import { Checkbox } from "antd";
 
 export const LoginWrapper = styled.div`
   height: 100vh;
   display: flex;
-  // Bỏ overflow: hidden ở đây để tránh lỗi không scroll được trên mobile khi form dài
-  // overflow: hidden;
-  background-color: ${themeGet("colors.backgroundColor")};
+  background-color: ${themeGet("colors.backgroundColor")}; // Nền chính (tối)
 
   .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: ${themeGet("colors.primary")};
-    border-color: ${themeGet("colors.primary")};
+    background-color: ${themeGet("colors.highlight")}; // Màu nhấn nổi bật
+    border-color: ${themeGet("colors.highlight")};
+  }
+  .ant-checkbox-wrapper .ant-checkbox-inner {
+    border-color: ${themeGet("colors.border")}; // Viền checkbox màu tối
   }
 
   //tablet
   @media only screen and (max-width: 1024px) {
     flex-direction: column;
-    height: auto; // Cho phép chiều cao tự động trên mobile
+    height: auto;
     min-height: 100vh;
   }
 
@@ -33,8 +33,7 @@ export const ImgContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${themeGet("colors.backgroundColor")};
-  // Ẩn ảnh trên mobile nếu cần không gian, hoặc giữ nguyên tùy design
+  background-color: ${themeGet("colors.backgroundColor")}; // Giữ nền tối
 
   img {
     width: 90%;
@@ -42,7 +41,7 @@ export const ImgContent = styled.div`
 
     //tablet
     @media only screen and (max-width: 1024px) {
-      width: 60%; // Giảm kích thước ảnh trên tablet dọc cho gọn
+      width: 60%;
       margin: 20px 0;
     }
   }
@@ -50,7 +49,7 @@ export const ImgContent = styled.div`
   //tablet
   @media only screen and (max-width: 1024px) {
     flex: 1;
-    min-height: 200px; // Đảm bảo ảnh không bị bẹp
+    min-height: 200px;
   }
 
   //tablet landspace
@@ -64,9 +63,11 @@ export const LoginFormWrapper = styled.div`
   padding: 2rem;
   display: flex;
   align-items: center;
-  background-color: ${themeGet("colors.gray")};
+  background-color: ${themeGet(
+    "colors.gray"
+  )}; // Nền form wrapper (xám đậm hơn)
   justify-content: center;
-  overflow-y: auto; // Cho phép cuộn nếu form quá dài
+  overflow-y: auto;
 
   .login-btn {
     .ant-form-item-control-input {
@@ -75,40 +76,113 @@ export const LoginFormWrapper = styled.div`
   }
 
   & > div {
-    // --- SỬA ĐỔI QUAN TRỌNG ---
-    width: 100%; // Chiếm hết chiều ngang cho phép
-    max-width: 460px; // Nhưng không vượt quá 460px
-    height: auto; // Chiều cao tự động theo nội dung
-    min-height: 460px; // Chiều cao tối thiểu (cho form login đẹp)
+    width: 100%;
+    max-width: 460px;
+    height: auto;
+    min-height: 460px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    // -------------------------
 
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    box-shadow: rgba(255, 255, 255, 0.08) 0px 3px 8px;
     padding: 3rem;
-    background-color: ${themeGet("colors.white")};
+    background-color: ${themeGet("colors.secondary")};
     border-radius: 10px;
-    transition: all 0.3s ease; // Hiệu ứng mượt khi chuyển form
+    transition: all 0.3s ease;
 
+    // Input trong Ant Design
     .ant-input-affix-wrapper,
     .input-username {
       height: 50px;
       background-color: ${themeGet("colors.gray")};
+      color: ${themeGet("colors.textColor")};
     }
     .ant-input {
+      // Màu nền input
       background-color: ${themeGet("colors.gray")};
+      color: ${themeGet("colors.textColor")};
+      &::placeholder {
+        color: ${themeGet("colors.dark")};
+      }
       &:focus {
         background-color: ${themeGet("colors.gray")};
+      }
+    }
+    .ant-input-affix-wrapper > .ant-input-suffix > .anticon-eye {
+      color: ${themeGet("colors.textColor")};
+    }
+    }
+    .ant-input-affix-wrapper > .ant-input-suffix > .anticon-eye-invisible {
+      color: ${themeGet("colors.textColor")};
+    }
+
+    .ant-input-suffix,
+    .ant-input-prefix {
+      color: ${themeGet("colors.white")} !important;
+    }
+    .ant-input-status-error:not(.ant-input-disabled):not(
+        .ant-input-borderless
+      ).ant-input,
+    .ant-input-status-error:not(.ant-input-disabled):not(
+        .ant-input-borderless
+      ).ant-input:hover {
+      background-color: ${themeGet("colors.gray")};
+    }
+
+    .ant-input-affix-wrapper-status-error:not(
+        .ant-input-affix-wrapper-disabled
+      ):not(.ant-input-affix-wrapper-borderless).ant-input-affix-wrapper,
+    .ant-input-affix-wrapper-status-error:not(
+        .ant-input-affix-wrapper-disabled
+      ):not(.ant-input-affix-wrapper-borderless).ant-input-affix-wrapper:hover {
+      background-color: ${themeGet("colors.gray")};
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      // Dùng shadow đổ vào trong để che màu trắng mặc định
+      -webkit-box-shadow: 0 0 0 30px ${themeGet(
+        "colors.gray"
+      )} inset !important;
+      // Chỉnh màu chữ thành màu sáng
+      -webkit-text-fill-color: ${themeGet("colors.textColor")} !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .ant-input-prefix,
+    .ant-input-suffix {
+      color: ${themeGet("colors.dark")};
+    }
+
+    .ant-radio-button-wrapper {
+      background-color: ${themeGet("colors.gray")};
+      color: ${themeGet("colors.textColor")};
+      border-color: ${themeGet("colors.dark")} !important;
+      
+      &:hover {
+        color: ${themeGet("colors.highlight")};
+      }
+    }
+
+    .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+      background-color: ${themeGet("colors.highlight")} !important;
+      color: ${themeGet("colors.white")} !important;
+      border-color: ${themeGet("colors.highlight")} !important;
+      
+      &:hover {
+        background-color: ${themeGet("colors.highlight")} !important;
+        color: ${themeGet("colors.white")} !important;
       }
     }
 
     //tablet
     @media only screen and (max-width: 1024px) {
-      width: 90%; // Rộng hơn một chút trên tablet
+      width: 90%;
       max-width: 500px;
       padding: 2rem;
-      min-height: auto; // Trên mobile không cần min-height cứng
+      min-height: auto;
     }
   }
 
@@ -116,12 +190,8 @@ export const LoginFormWrapper = styled.div`
   @media only screen and (max-width: 1024px) {
     flex: 5;
     justify-content: center;
-    align-items: flex-start; // Căn lên trên để scroll tốt hơn
-    padding: 2rem 0; // Thêm padding trên dưới
-
-    // Nếu muốn bo tròn kiểu bottom-sheet
-    // border-radius: 35px 35px 0 0;
-    // box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 0px 0px inset;
+    align-items: flex-start;
+    padding: 2rem 0;
   }
 
   //tablet landspace
@@ -137,9 +207,9 @@ export const LoginFormTitle = styled.h1`
   margin: auto;
   margin-bottom: 2rem;
   text-align: center;
-  color: ${themeGet("colors.primary")};
+  color: ${themeGet("colors.textColor")}; // Màu chữ sáng
   font-weight: 600;
-  font-size: 1.8rem; // Set font size rõ ràng
+  font-size: 1.8rem;
 
   //tablet
   @media only screen and (max-width: 1024px) {
@@ -152,7 +222,7 @@ export const LoginFormTitle = styled.h1`
 export const ReForgotPass = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem; // Thêm khoảng cách
-  .ant-checkbox-inner {
-  }
+  margin-bottom: 1rem;
+  // Màu chữ cho các liên kết/label (ví dụ: Quên mật khẩu, Ghi nhớ)
+  color: ${themeGet("colors.textColor")};
 `;

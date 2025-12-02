@@ -7,7 +7,7 @@ import {
   Row,
   Col,
   Typography,
-} from "antd"; // Thêm Radio, Row, Col
+} from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoginFormTitle, LoginFormWrapper, LoginWrapper } from "./Login.style";
 import { useAppDispatch } from "../../app/hooks";
@@ -15,7 +15,7 @@ import { loginSuccess } from "./LoginSlice";
 import { LOCAL_STORAGE_ITEM, PATH } from "../../constants/common";
 import { useState } from "react";
 import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
-import colors from "../../theme/colors";
+import colors from "../../theme/colors"; // Đã import hệ màu tối của bạn
 import { AuthenAPI } from "../../api/AuthenAPI";
 
 const { Text, Link } = Typography;
@@ -43,7 +43,6 @@ export const Login = () => {
 
   const onFinish = (values: AuthFormValues) => {
     setLoading(true);
-
     if (isRegister) {
       if (values.password !== values.confirmPassword) {
         setLoading(false);
@@ -54,7 +53,6 @@ export const Login = () => {
         });
         return;
       }
-      console.log(values.role);
 
       AuthenAPI.Register({
         email: values.username,
@@ -174,11 +172,15 @@ export const Login = () => {
                 </Row>
                 <Form.Item
                   name="role"
-                  label="Bạn là:"
+                  label={
+                    <Text style={{ color: colors.textColor }}>Bạn là:</Text>
+                  }
                   rules={[
                     { required: true, message: "Vui lòng chọn vai trò!" },
                   ]}
                 >
+                  {/* Radio.Group/Button cần được style bằng CSS hoặc AntD theme override 
+                      để có màu nền/chữ tối phù hợp hơn */}
                   <Radio.Group buttonStyle="solid" style={{ width: "100%" }}>
                     <Radio.Button
                       value="customer"
@@ -243,7 +245,7 @@ export const Login = () => {
 
             {!isRegister && (
               <Form.Item name="remember" valuePropName="checked">
-                <Checkbox style={{ color: colors.primary }}>
+                <Checkbox style={{ color: colors.textColor }}>
                   Nhớ mật khẩu?
                 </Checkbox>
               </Form.Item>
@@ -258,7 +260,7 @@ export const Login = () => {
                 style={{
                   width: "100%",
                   height: "55px",
-                  backgroundColor: colors.primary,
+                  backgroundColor: colors.highlight || colors.primaryHover,
                   border: "none",
                   fontWeight: "bold",
                 }}
@@ -268,14 +270,18 @@ export const Login = () => {
             </Form.Item>
             <div style={{ textAlign: "center", marginTop: "10px" }}>
               {isRegister ? (
-                <Text>
+                <Text style={{ color: colors.textColor }}>
                   Đã có tài khoản?{" "}
-                  <Link strong onClick={() => setIsRegister(false)}>
+                  <Link
+                    strong
+                    onClick={() => setIsRegister(false)}
+                    style={{ color: colors.highlight || colors.primaryHover }}
+                  >
                     Đăng nhập ngay
                   </Link>
                 </Text>
               ) : (
-                <Text>
+                <Text style={{ color: colors.textColor }}>
                   Chưa có tài khoản?{" "}
                   <Link
                     strong
@@ -283,6 +289,7 @@ export const Login = () => {
                       setIsRegister(true);
                       form.resetFields();
                     }}
+                    style={{ color: colors.highlight || colors.primaryHover }}
                   >
                     Đăng ký ngay
                   </Link>

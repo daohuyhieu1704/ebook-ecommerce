@@ -11,6 +11,7 @@ export const PATH = Object.freeze({
   CATEGORY_DETAIL: "/category/:id_category",
   PROFILE: "/profile",
   EMPLOYEES: "/employees",
+  CHECKOUT: "/checkout",
   NOT_FOUND: "*",
 });
 
@@ -54,6 +55,11 @@ export const ROUTES = Object.freeze({
     {
       path: PATH.EMPLOYEES,
       element: "EmployeeManagerPage",
+      permission: [ROLE.admin],
+    },
+    {
+      path: PATH.CHECKOUT,
+      element: "CheckoutPage",
       permission: [ROLE.admin],
     },
   ],
@@ -139,6 +145,14 @@ export const MANAGEMENT_MENU = [
         type: SearchType.input,
       },
     ],
+    children: null,
+  },
+  {
+    path: PATH.CHECKOUT,
+    name: "Thanh toán",
+    permissions: [ROLE.admin],
+    icon: <TeamOutlined />,
+    filter: [],
     children: null,
   },
 ];

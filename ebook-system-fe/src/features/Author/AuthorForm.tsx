@@ -1,4 +1,4 @@
-import { DatePicker, Form, Input, InputNumber, Select } from "antd";
+import { DatePicker, Form, Input, InputNumber, Select } from "antd"; // Vẫn import Form để dùng Form.Item, Form.useForm
 import React, { useEffect, useRef } from "react";
 import {
   closeDrawerRight,
@@ -13,6 +13,9 @@ import { BookAPI } from "../../api/BookAPI";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { selectAccessToken } from "../Login/LoginSlice";
 import { AuthorAPI } from "../../api/AuthorAPI";
+
+// Import styled component
+import { FormCustom } from "./AuthorForm.style";
 
 type FormProps = {
   formName: string;
@@ -117,7 +120,13 @@ export default function AuthorForm(props: FormProps) {
   }, [drawerRightVisible]);
 
   return (
-    <Form form={form} name={formName} onFinish={onFinish} layout="vertical">
+    // Thay Form bằng FormCustom
+    <FormCustom
+      form={form}
+      name={formName}
+      onFinish={onFinish}
+      layout="vertical"
+    >
       <Form.Item name="name" label="Tên" rules={[{ required: true }]}>
         <Input size="large" ref={inputRef} style={{ zIndex: 9999 }} />
       </Form.Item>
@@ -131,6 +140,6 @@ export default function AuthorForm(props: FormProps) {
       <Form.Item name="img" label="Ảnh" rules={[{ required: true }]}>
         <TextArea size="large" ref={inputRef} style={{ zIndex: 9999 }} />
       </Form.Item>
-    </Form>
+    </FormCustom>
   );
 }

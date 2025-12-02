@@ -13,13 +13,21 @@ class OrderController {
 
   postAddToCart = async (req, res, next) => {
     let user = req.user;
-    let { book_ID } = JSON.parse(req.body);
-    let data = await new OrderService().AddToCart({ user, book_ID });
+    try {
+      let { book_ID } = JSON.parse(req.body);
+      let data = await new OrderService().AddToCart({ user, book_ID });
 
-    if (data.error) {
-      return res.status(400).json(HttpResponse.error(data.error));
+      if (data.error) {
+        return res.status(400).json(HttpResponse.error(data.error));
+      }
+
+      return res.json(HttpResponse.success(data));
+    } catch (error) {
+      console.error("Lỗi trong postAddToCart:", error);
+      const errorMessage =
+        error.message || "Lỗi server không xác định khi thêm vào giỏ hàng.";
+      return res.status(500).json(HttpResponse.error(errorMessage));
     }
-    return res.json(HttpResponse.success(data));
   };
 
   deleteItemInCart = async (req, res, next) => {

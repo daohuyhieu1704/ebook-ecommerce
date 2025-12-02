@@ -160,11 +160,18 @@ export const LayoutHeader = () => {
   };
 
   const menu = (
-    <Menu style={{ padding: "0" }}>
+    <Menu
+      style={{
+        padding: "0",
+        backgroundColor: theme.colors.secondary,
+        border: `1px solid ${theme.colors.border}`,
+      }}
+    >
       <CustomMenuItemDropdown
         onClick={() => navigate(PATH.PROFILE)}
         key="1"
         icon={<UserOutlined />}
+        style={{ color: theme.colors.textColor }}
       >
         Cá nhân
       </CustomMenuItemDropdown>
@@ -189,16 +196,39 @@ export const LayoutHeader = () => {
     }
   }, [drawerRightVisible, location?.pathname]);
 
+  const drawerStyles = {
+    headerStyle: {
+      background: theme.colors.secondary,
+      color: theme.colors.textColor,
+      borderBottom: `1px solid ${theme.colors.border}`,
+      borderRadius: 0,
+    },
+    bodyStyle: {
+      background: theme.colors.primary,
+      color: theme.colors.textColor,
+    },
+    footerStyle: {
+      height: "70px",
+      padding: "0 24px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      background: theme.colors.secondary,
+      borderTop: `1px solid ${theme.colors.border}`,
+    },
+  };
+
   return (
     <CustomHeader style={!isLoggedIn ? { display: "none" } : {}}>
       <div style={{ display: "flex", alignItems: "center" }}>
         {createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
           onClick: toggle,
+          style: { color: theme.colors.textColor, fontSize: "18px" },
         })}
         {canCreate ? (
           <ActionWrapper>
             <ActionItem onClick={drawerOnOpenCreate}>
-              <PlusOutlined style={{ color: "green" }} />
+              <PlusOutlined style={{ color: theme.colors.highlight }} />
             </ActionItem>
           </ActionWrapper>
         ) : (
@@ -213,12 +243,7 @@ export const LayoutHeader = () => {
           alignItems: "center",
         }}
       >
-        <Dropdown overlay={menuNoti} trigger={["click"]}>
-          <Button shape="circle" type="link">
-            <BellOutlined />
-          </Button>
-        </Dropdown>
-        <Text code style={{ color: theme.colors.primary }}>
+        <Text code style={{ color: theme.colors.textColor }}>
           {userInfo?.name}
         </Text>
         <HeaderConfirm>
@@ -227,19 +252,31 @@ export const LayoutHeader = () => {
               <Avatar
                 size="default"
                 icon={<UserOutlined />}
-                style={{ color: theme.colors.primary }}
+                style={{
+                  backgroundColor: theme.colors.gray,
+                  color: theme.colors.textColor,
+                }}
               />
             </UserInfo>
           </Dropdown>
         </HeaderConfirm>
       </div>
+
       <Drawer
-        title={forms[formTitle]?.formTitle}
+        title={
+          <span style={{ color: theme.colors.textColor }}>
+            {forms[formTitle]?.formTitle}
+          </span>
+        }
         width={500}
         maskClosable={false}
         placement="right"
         onClose={drawerRightOnClose}
         visible={drawerRightVisible}
+        headerStyle={drawerStyles.headerStyle}
+        bodyStyle={drawerStyles.bodyStyle}
+        footerStyle={drawerStyles.footerStyle}
+        closeIcon={<span style={{ color: theme.colors.textColor }}>x</span>}
         footer={[
           <DrawerFooterButton
             disabled={disableSubmit}
@@ -249,6 +286,11 @@ export const LayoutHeader = () => {
             htmlType="submit"
             size="large"
             loading={isLoadingSubmit}
+            style={{
+              backgroundColor: theme.colors.highlight,
+              borderColor: theme.colors.highlight,
+              color: theme.colors.white,
+            }}
           >
             {"Xác nhận"}
           </DrawerFooterButton>,
@@ -256,48 +298,49 @@ export const LayoutHeader = () => {
             key="back"
             onClick={drawerRightOnClose}
             size="large"
+            style={{
+              backgroundColor: theme.colors.gray,
+              color: theme.colors.textColor,
+              borderColor: theme.colors.border,
+            }}
           >
             Hủy bỏ
           </DrawerFooterButton>,
         ]}
-        headerStyle={{
-          background: theme.colors.primary,
-          color: "white",
-          borderRadius: 0,
-        }}
-        footerStyle={{
-          height: "70px",
-          padding: "0 24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
       >
         {forms[formTitle]?.formRender}
       </Drawer>
       <Drawer
-        title={details[location?.pathname]?.detailTitle}
+        title={
+          <span style={{ color: theme.colors.textColor }}>
+            {details[location?.pathname]?.detailTitle}
+          </span>
+        }
         height={"100vh"}
         placement="bottom"
         onClose={drawerBottomOnClose}
         visible={drawerBottomVisible}
+        headerStyle={drawerStyles.headerStyle}
+        bodyStyle={drawerStyles.bodyStyle}
+        footerStyle={{
+          ...drawerStyles.footerStyle,
+          justifyContent: "end",
+        }}
+        closeIcon={<span style={{ color: theme.colors.textColor }}>x</span>}
         footer={[
-          <Button key="back" onClick={drawerBottomOnClose} size="large">
+          <Button
+            key="back"
+            onClick={drawerBottomOnClose}
+            size="large"
+            style={{
+              backgroundColor: theme.colors.gray,
+              color: theme.colors.textColor,
+              borderColor: theme.colors.border,
+            }}
+          >
             Hủy bỏ
           </Button>,
         ]}
-        headerStyle={{
-          background: theme.colors.primary,
-          color: "white",
-          borderRadius: 0,
-        }}
-        footerStyle={{
-          height: "70px",
-          padding: "0 24px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "end",
-        }}
       >
         {details[location?.pathname]?.cpnRender}
       </Drawer>

@@ -1,4 +1,4 @@
-import { DatePicker, Form, Input, InputNumber } from "antd";
+import { Form, Input } from "antd"; // Vẫn giữ import Form
 import React, { useEffect, useRef } from "react";
 import {
   closeDrawerRight,
@@ -9,9 +9,11 @@ import {
   setIsRefetch,
 } from "../layout/layoutSlice";
 import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
-import { BookAPI } from "../../api/BookAPI";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { selectUserInfo } from "../Login/LoginSlice";
+import { selectAccessToken } from "../Login/LoginSlice";
+import { CategoryAPI } from "../../api/CategoryAPI";
+
+import { FormCustom } from "./Category.style";
 
 type FormProps = {
   formName: string;
@@ -23,10 +25,12 @@ export default function CategoryForm(props: FormProps) {
   const dispatch = useAppDispatch();
   const [form] = Form.useForm();
   const { TextArea } = Input;
+
   const drawerRightVisible = useAppSelector(selectDrawerRightVisible);
   const isUpdateForm = useAppSelector(selectIsUpdateForm);
   const selectedRows = useAppSelector(selectSelectedRows);
-  const userInfo = useAppSelector(selectUserInfo);
+  const accessToken = useAppSelector(selectAccessToken);
+
   const onSubmitSuccess = () => {
     form.resetFields();
     dispatch(setIsRefetch(true));
@@ -37,9 +41,12 @@ export default function CategoryForm(props: FormProps) {
       type: "success",
       message: "Success",
       description:
-        selectedRows?.length > 0 ? "Update successful!" : "Create successful!",
+        selectedRows?.length > 0
+          ? "Cập nhật thành công!"
+          : "Tạo mới thành công!",
     });
   };
+
   const onSubmitError = (error: any) => {
     dispatch(setIsLoadingSubmit(false));
 
@@ -49,57 +56,46 @@ export default function CategoryForm(props: FormProps) {
       description: error.response ? error.response.data.message : error.message,
     });
   };
-  const onFinish = (values: any) => {
-    console.log("listUpload", values, isUpdateForm);
+
+  const onFinish = async (values: any) => {
     dispatch(setIsLoadingSubmit(true));
-    if (isUpdateForm) {
-      // BookingAPI.update({
-      //   chk: values.hk,
-      //   start: values.start,
-      //   end: values.end,
-      // }, `${userInfo.accessToken}`).then(() => {
-      //   dispatch(setIsLoadingSubmit(false));
-      //   onSubmitSuccess();
-      // })
-      //   .catch((err: any) => {
-      //     onSubmitError(err);
-      //   });
-    } else {
-      // BookAPI.createBook(
-      //   {
-      //     hk: values.hk,
-      //     start: new Date(values.start).getTime(),
-      //     end: new Date(values.end).getTime(),
-      //   },
-      //   `${userInfo.accessToken}`
-      // )
-      //   .then((res: any) => {
-      //     console.log("hc res: ", res.data);
-      //     dispatch(setIsLoadingSubmit(false));
-      //     const { message } = res.data;
-      //     NotificationCustom({
-      //       type: "success",
-      //       message: "Thành công",
-      //       description: `${message}`,
-      //     });
-      //     onSubmitSuccess();
-      //   })
-      //   .catch((err: any) => {
-      //     dispatch(setIsLoadingSubmit(false));
-      //     NotificationCustom({
-      //       type: "error",
-      //       message: "Error",
-      //       description: err.data?.message,
-      //     });
-      //     onSubmitError(err);
-      //   });
+    try {
+      if (isUpdateForm) {
+        await CategoryAPI.UpdateCategory(
+          {
+            id: selectedRows[0].id,
+            name: values.name,
+            description: values.description,
+          },
+          accessToken
+        );
+        onSubmitSuccess();
+      } else {
+        const res = await CategoryAPI.AddCategory(
+          {
+            name: values.name,
+            description: values.description,
+          },
+          accessToken
+        );
+        const { message } = res.data;
+        NotificationCustom({
+          type: "success",
+          message: "Thành công",
+          description: `${message}`,
+        });
+        onSubmitSuccess();
+      }
+    } catch (err) {
+      onSubmitError(err);
     }
   };
+
   const onFill = (values: any) => {
-    if (values?.mach) {
+    if (values) {
       form.setFieldsValue({
-        cauhoi: values.cauhoi,
-        cautraloi: values.cautraloi,
+        name: values.name,
+        description: values.description,
       });
     }
   };
@@ -107,7 +103,7 @@ export default function CategoryForm(props: FormProps) {
   useEffect(() => {
     setTimeout(() => {
       // @ts-ignore
-      inputRef.current!.focus({
+      inputRef.current?.focus({
         cursor: "start",
       });
     }, 100);
@@ -118,14 +114,34 @@ export default function CategoryForm(props: FormProps) {
       onFill(selectedRows[0]);
     }
   }, [drawerRightVisible]);
+
   return (
-    <Form form={form} name={formName} onFinish={onFinish} layout="vertical">
-      <Form.Item name="Tên" label="name" rules={[{ required: true }]}>
-        <Input size="large" ref={inputRef} style={{ zIndex: 9999 }} />
+    <FormCustom
+      form={form}
+      name={formName}
+      onFinish={onFinish}
+      layout="vertical"
+    >
+      <Form.Item
+        name="name"
+        label="Tên danh mục"
+        rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
+      >
+        <Input
+          size="large"
+          ref={inputRef}
+          style={{ zIndex: 9999 }}
+          placeholder="Nhập tên danh mục..."
+        />
       </Form.Item>
-      <Form.Item name="Mô tả" label="description" rules={[{ required: true }]}>
-        <TextArea rows={4} />
+
+      <Form.Item
+        name="description"
+        label="Mô tả"
+        rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
+      >
+        <TextArea rows={4} placeholder="Nhập mô tả..." />
       </Form.Item>
-    </Form>
+    </FormCustom>
   );
 }

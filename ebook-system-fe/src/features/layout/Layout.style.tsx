@@ -1,76 +1,78 @@
-import styled from 'styled-components';
-import { Layout, Menu } from 'antd';
-import { themeGet } from '@styled-system/theme-get';
+import styled from "styled-components";
+import { Layout, Menu } from "antd";
+import { themeGet } from "@styled-system/theme-get";
 const { Content, Sider, Header } = Layout;
 
 export const LayoutWrapper = styled.div`
   min-width: 1024px;
-  background: #fff;
+  background: ${themeGet("colors.backgroundColor")};
 `;
 
 export const CustomLayout = styled(Layout)`
-
+  background: ${themeGet("colors.backgroundColor")};
 `;
 
 export const CustomContent = styled(Content)`
-  padding: ${themeGet('spaces.container')}px;
-  /* padding: 0; */
-  min-height: calc(100vh - ${themeGet('headerHeight')}px);
-  //background-color: white;
-
-  /* border: 16px ${themeGet('colors.border')} solid; */
-
-  /* display: flex;
-  justify-content: center;
-  align-items: center; */
+  padding: ${themeGet("spaces.container")}px;
+  min-height: calc(100vh - ${themeGet("headerHeight")}px);
 `;
 
 export const CustomMenu = styled(Menu)`
-  background-color: black !important;
-  /* border-right: 1px solid ${themeGet('colors.primary')}; */
-  height: calc(100% - ${themeGet('headerHeight')}px);
+  background-color: ${themeGet("colors.secondary")} !important;
+  height: calc(100% - ${themeGet("headerHeight")}px);
   position: relative;
+  border-right: none;
 
   .ant-menu-item-selected {
-    background-color: #4b4c4d !important;
+    background-color: ${themeGet("colors.highlight")} !important;
+    color: ${themeGet("colors.white")} !important;
+  }
+
+  .ant-menu-item {
+    color: ${themeGet("colors.textColor")};
+    &:hover {
+      color: ${themeGet("colors.highlight")};
+    }
   }
 `;
 
 export const CustomMenuItem = styled(Menu.Item)`
-  font-size: ${themeGet('sizes.S')};
-  /* font-weight: 700; */
+  font-size: ${themeGet("sizes.S")};
   margin-top: 0 !important;
 `;
 
 export const CustomSider = styled(Sider)`
-  background-color: ${themeGet('colors.sortGray')};
+  background-color: ${themeGet("colors.secondary")} !important;
+
   .ant-menu.ant-menu-dark,
   .ant-menu-dark .ant-menu-sub,
   .ant-menu.ant-menu-dark .ant-menu-sub {
-    background-color: ${themeGet('colors.sortGray')};
+    background-color: ${themeGet("colors.secondary")} !important;
   }
 `;
 
 export const CustomHeader = styled(Header)`
-  height: ${themeGet('headerHeight')}px;
-  background-color: black;
-  padding: 0 ${themeGet('spaces.container')}px;
+  height: ${themeGet("headerHeight")}px;
+  background-color: ${themeGet("colors.secondary")};
+  padding: 0 ${themeGet("spaces.container")}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 0 10px -5px gray;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid ${themeGet("colors.border")};
   z-index: 1;
   position: relative;
 
   & > span {
-    color: white;
+    color: ${themeGet("colors.textColor")};
     font-size: 1.1rem;
   }
 `;
+
 export const CategoryTitle = styled.div`
   font-weight: 700;
   font-size: 1.5rem;
-  color: white;
+  color: ${themeGet("colors.textColor")};
   width: 100%;
   display: flex;
   justify-content: center;
@@ -79,16 +81,17 @@ export const CategoryTitle = styled.div`
     font-size: 1rem;
   }
 `;
+
 export const CustomMenuItemDropdown = styled(Menu.Item)`
   padding: 10px 30px;
 `;
+
 export const LogoWrapper = styled.div`
-  height: ${themeGet('headerHeight')}px;
+  height: ${themeGet("headerHeight")}px;
   display: flex;
   align-items: center;
   padding: 0 1rem;
   padding-left: 24px;
-  /* width: 200px; */
 
   img {
     width: 40px;
@@ -109,23 +112,24 @@ export const LogoImage = styled.img`
 `;
 
 export const LogoText = styled.p`
-  color: ${themeGet('colors.black')};
+  color: ${themeGet("colors.textColor")};
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
   font-weight: 700;
-  font-size: ${themeGet('sizes.Standard')};
+  font-size: ${themeGet("sizes.Standard")};
   margin-left: 10px;
   font-size: 1.3rem;
 `;
+
 export const LogoPara = styled.p`
-  color: ${themeGet('colors.black')};
+  color: ${themeGet("colors.textColor")};
   display: flex;
   align-items: center;
   margin-bottom: 0;
   font-weight: 700;
-  font-size: ${themeGet('sizes.Standard')};
+  font-size: ${themeGet("sizes.Standard")};
   margin-left: 10px;
   font-size: 0.6rem;
 `;
@@ -137,16 +141,16 @@ export const UserInfo = styled.div`
   align-items: center;
 `;
 export const Avatar = styled.img``;
+
 export const DisplayName = styled.span`
-  color: ${themeGet('colors.primary')};
+  color: ${themeGet("colors.textColor")};
   margin-right: 0.5rem;
   font-weight: 600;
-  /* font-size: 1rem; */
 `;
 
 export const ImageContent = styled.div`
   padding: 5px;
-  height: ${themeGet('headerHeight')}px;
+  height: ${themeGet("headerHeight")}px;
   text-align: center;
   & > img {
     width: 40px;
@@ -158,14 +162,18 @@ export const ImageContent = styled.div`
 export const Container = styled.div`
   .ant-input,
   .ant-input-search-button {
-    background-color: #4b4c4d;
+    background-color: ${themeGet("colors.gray")};
     border: 0;
     height: 35px;
-    color: white;
-    border: 0;
+    color: ${themeGet("colors.textColor")};
     box-shadow: none;
+
+    &::placeholder {
+      color: ${themeGet("colors.dark")};
+    }
+
     &:focus {
-      border: 0;
+      border: 1px solid ${themeGet("colors.highlight")};
     }
     &:hover {
       border: 0;
@@ -173,7 +181,7 @@ export const Container = styled.div`
   }
   .anticon,
   .anticon-search {
-    color: white;
+    color: ${themeGet("colors.textColor")};
   }
 `;
 
@@ -183,8 +191,8 @@ export const ContainerSearch = styled.div`
 `;
 
 export const ButtonSendMail = styled.button`
-  background-color: #1a3a8a;
-  color: white;
+  background-color: ${themeGet("colors.highlight")};
+  color: ${themeGet("colors.white")};
   text-align: center;
   width: 150px;
   height: 30px;
@@ -192,4 +200,10 @@ export const ButtonSendMail = styled.button`
   justify-content: center;
   align-items: center;
   border: 0;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:hover {
+    opacity: 0.8;
+  }
 `;

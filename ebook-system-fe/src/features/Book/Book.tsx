@@ -1,4 +1,9 @@
-import { Button, Row, Tag, Typography } from "antd";
+import { Button, Row, Col, Spin, Empty, Radio, Tooltip } from "antd";
+import {
+  AppstoreOutlined,
+  BarsOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { BookAPI } from "../../api/BookAPI";
@@ -9,7 +14,6 @@ import { theme } from "../../theme/theme";
 import {
   openDrawerBottom,
   selectIsRefetch,
-  selectMode,
   selectSelectedKey,
   setIsRefetch,
   setSelectedRows,
@@ -17,7 +21,19 @@ import {
 import { selectDataBook, setDataBook } from "./BookSlice";
 import { selectAccessToken, selectUserInfo } from "../Login/LoginSlice";
 import ButtonFeature from "../../components/ButtonFeature/ButtonFeature";
-import { ROLE, rolePair } from "../../constants/common";
+import { FAIL_IMG } from "../../constants/common";
+import colors from "../../theme/colors";
+
+import { addToCart } from "../Checkout/CartSlice";
+
+import {
+  BookCard,
+  BookContainer,
+  CardImageWrapper,
+  CardContent,
+  AddToCartBtn,
+} from "./Book.style";
+import { CartAPI } from "../../api/CartAPI";
 
 export default function Book() {
   const dispatch = useAppDispatch();
@@ -26,18 +42,73 @@ export default function Book() {
   const [count, setCount] = useState<number>();
   const [offset, setOffset] = useState<number>(0);
   const [visible, setVisible] = useState(false);
+
   const data = useAppSelector(selectDataBook);
-  const [dataSrc, setDataSrc] = useState<any[]>([]);
-  const mode = useAppSelector(selectMode);
   const userInfo = useAppSelector(selectUserInfo);
+  const userRole = userInfo?.role_id || "customer";
+
+  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+
   const selectedTab = useAppSelector(selectSelectedKey);
   const isRefetch = useAppSelector(selectIsRefetch);
   const accToken = useAppSelector(selectAccessToken);
+
+  useEffect(() => {
+    if (userRole === "customer") {
+      setViewMode("card");
+    } else {
+      setViewMode("table");
+    }
+  }, [userRole]);
+
   function changeHandler(item: any) {
     setVisible(true);
     dispatch(openDrawerBottom());
     dispatch(setSelectedRows([item]));
   }
+
+  const handleAddToCart = async (e: React.MouseEvent, book: any) => {
+    e.stopPropagation();
+
+    if (!book.price) {
+      NotificationCustom({
+        type: "warning",
+        message: "Thông báo",
+        description: "Sản phẩm này hiện chưa có giá bán.",
+      });
+      return;
+    }
+
+    try {
+      await CartAPI.addToCart(accToken, book.id);
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || "Lỗi server khi thêm vào giỏ.";
+      NotificationCustom({
+        type: "error",
+        message: "Thất bại",
+        description: errorMessage,
+      });
+      return;
+    }
+
+    dispatch(
+      addToCart({
+        id: book.id,
+        title: book.title,
+        price: book.price,
+        image: book.image || FAIL_IMG,
+        author: book.Author?.name,
+      })
+    );
+
+    NotificationCustom({
+      type: "success",
+      message: "Đã thêm vào giỏ",
+      description: `Sách "${book.title}" đã được thêm vào giỏ hàng.`,
+    });
+  };
+
   const columns: object[] = [
     {
       title: "STT",
@@ -58,31 +129,14 @@ export default function Book() {
       dataIndex: "Author",
       key: "Author",
       width: "200px",
-      render: (value: any, item: any) => {
-        console.log(value);
-        return (
-          <Row justify="space-between">
-            <Typography.Text ellipsis={true} style={{ width: "100px" }}>
-              {value.name}
-            </Typography.Text>
-          </Row>
-        );
-      },
+      render: (value: any) => <span>{value?.name}</span>,
     },
     {
       title: "Thể loại",
       dataIndex: "Category",
       key: "Category",
       width: "150px",
-      render: (value: any, item: any) => {
-        return (
-          <Row justify="space-between">
-            <Typography.Text ellipsis={true} style={{ width: "100px" }}>
-              {value.name}
-            </Typography.Text>
-          </Row>
-        );
-      },
+      render: (value: any) => <span>{value?.name}</span>,
     },
     {
       title: "Giá",
@@ -90,6 +144,14 @@ export default function Book() {
       key: "price",
       align: "right",
       width: "80px",
+      render: (value: any) => (
+        <span>
+          {new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }).format(value)}
+        </span>
+      ),
     },
     {
       title: "Mô tả",
@@ -99,9 +161,16 @@ export default function Book() {
       render: (value: string, item: any) => {
         return (
           <Row justify="space-between">
-            <Typography.Text ellipsis={true} style={{ width: "300px" }}>
+            <span
+              style={{
+                width: "300px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
               {value}
-            </Typography.Text>
+            </span>
             <ButtonFeature
               value={value}
               item={item}
@@ -112,6 +181,7 @@ export default function Book() {
       },
     },
   ];
+
   const onSuccess = (res: any) => {
     setLoading(false);
     const dataSrc = res.data?.data
@@ -121,13 +191,10 @@ export default function Book() {
         key: data.id,
         ...data,
       }));
+    console.log(dataSrc);
     dispatch(setDataBook(dataSrc));
-    NotificationCustom({
-      type: "success",
-      message: "Thành công",
-      description: `${res.data.message}`,
-    });
   };
+
   const onError = (err: any) => {
     setLoading(false);
     NotificationCustom({
@@ -136,17 +203,14 @@ export default function Book() {
       description: err.data?.message,
     });
   };
+
   const getData = () => {
     setLoading(true);
-    console.log(accToken);
     BookAPI.getAllBooks(`${accToken}`)
-      .then((res) => {
-        onSuccess(res);
-      })
-      .catch((err) => {
-        onError(err);
-      });
+      .then((res) => onSuccess(res))
+      .catch((err) => onError(err));
   };
+
   useEffect(() => {
     getData();
   }, []);
@@ -157,17 +221,134 @@ export default function Book() {
       dispatch(setIsRefetch(false));
     }
   }, [isRefetch]);
+
+  const renderCardView = () => {
+    if (loading) {
+      return (
+        <div style={{ textAlign: "center", padding: "50px" }}>
+          <Spin size="large" />
+        </div>
+      );
+    }
+
+    if (!data || data.length === 0) {
+      return (
+        <Empty
+          description={<span style={{ color: "white" }}>Không có dữ liệu</span>}
+        />
+      );
+    }
+
+    return (
+      <BookContainer>
+        <Row gutter={[24, 24]}>
+          {data.map((book: any) => (
+            <Col key={book.id} xs={24} sm={12} md={8} lg={6} xl={6}>
+              <BookCard
+                $role={userRole}
+                hoverable
+                onClick={() => changeHandler(book)}
+              >
+                <CardImageWrapper>
+                  <img
+                    src={book.image || FAIL_IMG}
+                    alt={book.title}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = FAIL_IMG;
+                    }}
+                  />
+                </CardImageWrapper>
+
+                <CardContent>
+                  <div className="book-title" title={book.title}>
+                    {book.title}
+                  </div>
+                  <div className="book-author">
+                    {book.Author?.name || "N/A"}
+                  </div>
+                  <div className="book-category">
+                    {book.Category?.name || "N/A"}
+                  </div>
+
+                  <div className="price-row">
+                    <div className="book-price">
+                      {book.price
+                        ? new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(book.price)
+                        : "Liên hệ"}
+                    </div>
+
+                    <AddToCartBtn
+                      className="add-to-cart-btn"
+                      onClick={(e) => handleAddToCart(e, book)}
+                    >
+                      <ShoppingCartOutlined /> Thêm
+                    </AddToCartBtn>
+                  </div>
+                </CardContent>
+              </BookCard>
+            </Col>
+          ))}
+        </Row>
+      </BookContainer>
+    );
+  };
+
   return (
     <>
-      <TableLayout
-        checkbox={false}
-        bordered={true}
-        columns={columns}
-        dataSource={data}
-        loading={loading}
-        total={count}
-        setOffset={setOffset}
-      />
+      {userRole === "customer" && (
+        <Row justify="end" style={{ marginBottom: "16px" }}>
+          <Radio.Group
+            value={viewMode}
+            onChange={(e) => setViewMode(e.target.value)}
+            buttonStyle="solid"
+          >
+            <Tooltip title="Xem dạng lưới">
+              <Radio.Button
+                value="card"
+                style={{
+                  backgroundColor:
+                    viewMode === "card" ? colors.highlight : colors.secondary,
+                  borderColor: colors.border,
+                  color: viewMode === "card" ? "white" : colors.textColor,
+                }}
+              >
+                <AppstoreOutlined />
+              </Radio.Button>
+            </Tooltip>
+            <Tooltip title="Xem dạng danh sách">
+              <Radio.Button
+                value="table"
+                style={{
+                  backgroundColor:
+                    viewMode === "table" ? colors.highlight : colors.secondary,
+                  borderColor: colors.border,
+                  color: viewMode === "table" ? "white" : colors.textColor,
+                }}
+              >
+                <BarsOutlined />
+              </Radio.Button>
+            </Tooltip>
+          </Radio.Group>
+        </Row>
+      )}
+
+      {viewMode === "card" ? (
+        renderCardView()
+      ) : (
+        <TableLayout
+          checkbox={false}
+          bordered={true}
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          total={count}
+          setOffset={setOffset}
+          $userRole={userRole}
+        />
+      )}
     </>
   );
 }

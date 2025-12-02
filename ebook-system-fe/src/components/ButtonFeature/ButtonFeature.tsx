@@ -1,18 +1,12 @@
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  // ... các icon khác
-} from "@ant-design/icons";
-import { Button, Col, Modal, Row } from "antd"; // Đảm bảo import đủ
+import { EditOutlined, EllipsisOutlined } from "@ant-design/icons";
+import { Button, Col, Modal, Row } from "antd";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { NotificationCustom } from "../../components/NotificationCustom/NotificationCustom";
 import { PATH } from "../../constants/common";
 import {
   openDrawerRight,
   selectSelectedRows,
-  setIsLoadingSubmit,
   setIsUpdateForm,
   setSelectedRows,
 } from "../../features/layout/layoutSlice";
@@ -20,6 +14,26 @@ import {
   selectPermissions,
   selectUserInfo,
 } from "../../features/Login/LoginSlice";
+
+import styled from "styled-components";
+import { themeGet } from "@styled-system/theme-get";
+
+const ActionButton = styled(Button)`
+  background-color: transparent;
+  border: 1px solid ${themeGet("colors.border")};
+  color: ${themeGet("colors.textColor")};
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover,
+  &:focus {
+    color: ${themeGet("colors.highlight")} !important;
+    border-color: ${themeGet("colors.highlight")} !important;
+    background-color: ${themeGet("colors.primary")} !important;
+  }
+`;
 
 const { confirm } = Modal;
 
@@ -51,9 +65,7 @@ export default function ButtonFeature({
 
   const canEdit = permissions.some((slug: string) => {
     const isEditAction = slug.includes("edit") || slug.includes("update");
-
     const isMatchModule = moduleName ? slug.includes(moduleName) : false;
-
     return isEditAction && isMatchModule;
   });
 
@@ -66,7 +78,7 @@ export default function ButtonFeature({
         <></>
       ) : (
         <Col>
-          <Button
+          <ActionButton
             style={{
               marginLeft: "10px",
             }}
@@ -75,13 +87,13 @@ export default function ButtonFeature({
             onClick={drawerOnOpenUpdate}
           >
             <EditOutlined />
-          </Button>
+          </ActionButton>
         </Col>
       )}
 
       {!disableMoreInfo.includes(path) && (
         <Col>
-          <Button
+          <ActionButton
             style={{
               marginLeft: "10px",
             }}
@@ -92,7 +104,7 @@ export default function ButtonFeature({
             }}
           >
             <EllipsisOutlined />
-          </Button>
+          </ActionButton>
         </Col>
       )}
     </Row>
